@@ -71,7 +71,7 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
 
         # # TODO: consider `attention_mask`
         # return {"input_ids": input_ids[:-1]}, input_ids[1:]
-        return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
+        return {"input_ids": input_ids, "label": input_ids}
         # return example
     
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
@@ -159,7 +159,7 @@ def main(config):
     # gcs_pattern = f'gs://{bucket_name}/clue_datasets/*.tfrec'
     validation_split = 0.1
     filenames = tf.io.gfile.glob(params.input.train_file)
-    print(filenames[:5])
+    print(filenames[:50])
     split = len(filenames) - int(len(filenames) * validation_split)
     train_fns = filenames[:split]
     validation_fns = filenames[split:]
