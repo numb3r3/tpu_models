@@ -62,7 +62,7 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
         "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
     }
     def parse_tfrecord(example):
-        
+        print(example)
         example = tf.io.parse_single_example(example, name_to_features)
         
         assert "input_ids" in example
