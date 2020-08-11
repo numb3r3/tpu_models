@@ -1,0 +1,4 @@
+fire
+envyaml
+pydantic
+transformers
