@@ -82,6 +82,7 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
         dataset = dataset.shuffle(2048)
 
     def parse_mini_batch(batch_data):
+        print(batch_data)
         return {"input_ids": batch_data["input_ids"]}, batch_data["label"]
 
     # Prefetch the next batch while training (autotune prefetch buffer size).
