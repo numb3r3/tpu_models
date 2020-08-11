@@ -57,88 +57,90 @@ class Dataset(tf.keras.utils.Sequence):
 
 
 def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is_training: bool = True, evaluate_for_fixed_number_of_steps=True):
-    # AUTO = tf.data.experimental.AUTOTUNE
-    # name_to_features = {
-    #     "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
-    # }
-    # def parse_tfrecord(example):
-        
-    #     example = tf.io.parse_single_example(example, name_to_features)
-    #     input_ids= example["input_ids"]
-
-    #     # return input_ids[:-1], input_ids[1:]
-
-    #     # # TODO: consider `attention_mask`
-    #     # return {"input_ids": input_ids[:-1]}, input_ids[1:]
-    #     return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
-    
-    # # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
-    # records = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
-    # dataset = records.map(parse_tfrecord, num_parallel_calls=AUTO)
-  
-    # if is_train:
-    #     dataset = dataset.shuffle(2048)
-
-    # def parse_mini_batch(batch_data):
-    #     return {"input_ids": batch_data["input_ids"]}, batch_data["label"]
-
-    # # Prefetch the next batch while training (autotune prefetch buffer size).
-    # return dataset.batch(batch_size, drop_remainder=True).map(parse_mini_batch).prefetch(AUTO)
-
+    AUTO = tf.data.experimental.AUTOTUNE
     name_to_features = {
         "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
     }
+    def parse_tfrecord(example):
+        
+        example = tf.io.parse_single_example(example, name_to_features)
+        
+        # input_ids= example["input_ids"]
 
+        # return input_ids[:-1], input_ids[1:]
 
-    def _decode_record(record, name_to_features):
-        """Decodes a record to a TensorFlow example."""
-        example = tf.io.parse_single_example(record, name_to_features)
-
-        # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
-        # So cast all int64 to int32.
-        for name in list(example.keys()):
-            t = example[name]
-            if t.dtype == tf.int64:
-                t = tf.cast(t, tf.int32)
-            example[name] = t
+        # # TODO: consider `attention_mask`
+        # return {"input_ids": input_ids[:-1]}, input_ids[1:]
+        # return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
         return example
-
-    # For training, we want a lot of parallel reading and shuffling.
-    # For eval, we want no shuffling and parallel reading doesn't matter.
+    
+    # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
+    records = tf.data.TFRecordDataset(input_files, num_parallel_reads=AUTO)
+    dataset = records.map(parse_tfrecord, num_parallel_calls=AUTO)
+  
     if is_training:
-        d = tf.data.Dataset.from_tensor_slices(tf.constant(input_files))
-        d = d.repeat()
-        d = d.shuffle(buffer_size=len(input_files))
+        dataset = dataset.shuffle(2048)
 
-        # `cycle_length` is the number of parallel files that get read.
-        cycle_length = min(num_cpu_threads, len(input_files))
+    def parse_mini_batch(batch_data):
+        return {"input_ids": batch_data["input_ids"]}, batch_data["label"]
 
-        # `sloppy` mode means that the interleaving is not exact. This adds
-        # even more randomness to the training pipeline.
-        d = d.apply(
-            tf.data.experimental.parallel_interleave(
-                tf.data.TFRecordDataset,
-                sloppy=is_training,
-                cycle_length=cycle_length))
-        d = d.shuffle(buffer_size=100)
-    else:
-        d = tf.data.TFRecordDataset(input_files)
-        # If we evaluate for a fixed number of steps we don't want to encounter
-        # out-of-range exceptions.
-        if evaluate_for_fixed_number_of_steps:
-            d = d.repeat()
+    # Prefetch the next batch while training (autotune prefetch buffer size).
+    return dataset.batch(batch_size, drop_remainder=True).prefetch(AUTO)
 
-    # We must `drop_remainder` on training because the TPU requires fixed
-    # size dimensions. For eval, we assume we are evaluating on the CPU or GPU
-    # and we *don't* want to drop the remainder, otherwise we wont cover
-    # every sample.
-    d = d.apply(
-        tf.data.experimental.map_and_batch(
-            lambda record: _decode_record(record, name_to_features),
-            batch_size=batch_size,
-            num_parallel_batches=num_cpu_threads,
-            drop_remainder=True))
-    return d
+    # name_to_features = {
+    #     "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
+    # }
+
+
+    # def _decode_record(record, name_to_features):
+    #     """Decodes a record to a TensorFlow example."""
+    #     example = tf.io.parse_single_example(record, name_to_features)
+
+    #     # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
+    #     # So cast all int64 to int32.
+    #     for name in list(example.keys()):
+    #         t = example[name]
+    #         if t.dtype == tf.int64:
+    #             t = tf.cast(t, tf.int32)
+    #         example[name] = t
+    #     return example
+
+    # # For training, we want a lot of parallel reading and shuffling.
+    # # For eval, we want no shuffling and parallel reading doesn't matter.
+    # if is_training:
+    #     d = tf.data.Dataset.from_tensor_slices(tf.constant(input_files))
+    #     d = d.repeat()
+    #     d = d.shuffle(buffer_size=len(input_files))
+
+    #     # `cycle_length` is the number of parallel files that get read.
+    #     cycle_length = min(num_cpu_threads, len(input_files))
+
+    #     # `sloppy` mode means that the interleaving is not exact. This adds
+    #     # even more randomness to the training pipeline.
+    #     d = d.apply(
+    #         tf.data.experimental.parallel_interleave(
+    #             tf.data.TFRecordDataset,
+    #             sloppy=is_training,
+    #             cycle_length=cycle_length))
+    #     d = d.shuffle(buffer_size=100)
+    # else:
+    #     d = tf.data.TFRecordDataset(input_files)
+    #     # If we evaluate for a fixed number of steps we don't want to encounter
+    #     # out-of-range exceptions.
+    #     if evaluate_for_fixed_number_of_steps:
+    #         d = d.repeat()
+
+    # # We must `drop_remainder` on training because the TPU requires fixed
+    # # size dimensions. For eval, we assume we are evaluating on the CPU or GPU
+    # # and we *don't* want to drop the remainder, otherwise we wont cover
+    # # every sample.
+    # d = d.apply(
+    #     tf.data.experimental.map_and_batch(
+    #         lambda record: _decode_record(record, name_to_features),
+    #         batch_size=batch_size,
+    #         num_parallel_batches=num_cpu_threads,
+    #         drop_remainder=True))
+    # return d
 
 
 def main(config):
