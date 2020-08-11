@@ -8,7 +8,7 @@ from transformers.tokenization_bert import BertTokenizer
 from tpu_models.models.gpt2_tf import load_or_init_model, train
 from tpu_models.utils import load_yaml, set_seed
 from tpu_models.config import Config
-from tpu_models.tpu_utils import tpu_initialize
+from tpu_models import tpu_utils
 
 def load_dataset(path):
     texts = []
@@ -184,7 +184,7 @@ def main(config):
     valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
     # When tpu_address is an empty string, we communicate with local TPUs.
-    cluster_resolver = tpu_initialize.tpu_initialize("tpu-quickstart")
+    cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
     print('Running on TPU ', cluster_resolver.as_dict()['worker'])
     tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
 
