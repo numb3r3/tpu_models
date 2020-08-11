@@ -2,7 +2,7 @@
 input:
     train_file: train.txt
     valid_file: eval.txt
-    tokenizer_file: resources/bert-base-chinese-vocab.txt
+    tokenizer_file: data/vocab/bert-base-chinese-vocab.txt
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
     pretrained_model_dir: null
