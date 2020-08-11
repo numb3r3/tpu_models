@@ -210,13 +210,13 @@ def main(config):
     # tf.tpu.experimental.initialize_tpu_system(tpu)
     # tpu_strategy = tf.distribute.TPUStrategy(tpu)
 
-    # # Train model
-    # with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-    #     model = load_or_init_model(
-    #         pretrained_model_dir=params.input.pretrained_model_dir,
-    #         vocab_size=len(tokenizer),
-    #         params=params.model_params,
-    #     )
+    # Train model
+    with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
+        model = load_or_init_model(
+            pretrained_model_dir=params.input.pretrained_model_dir,
+            vocab_size=len(tokenizer),
+            params=params.model_params,
+        )
     # val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
     # val_best_model.summary()
 
