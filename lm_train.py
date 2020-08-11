@@ -56,30 +56,68 @@ class Dataset(tf.keras.utils.Sequence):
         return math.ceil(len(self._samples) / self._batch_size)
 
 
+def get_dataset(filenames, max_seq_len, batch_size, is_train: bool = True):
+    AUTO = tf.data.experimental.AUTOTUNE
+    name_to_features = {
+        "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
+    }
+    def parse_tfrecord(example):
+        
+        example = tf.io.parse_single_example(example, name_to_features)
+        input_ids= example["input_ids"]
+        # return input_ids[:-1], input_ids[1:]
+        # TODO: consider `attention_mask`
+        return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
+        
+    
+    # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
+    records = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
+    dataset = records.map(parse_tfrecord, num_parallel_calls=AUTO)
+  
+    if is_train:
+        dataset = dataset.repeat().shuffle(2048)
+
+    # Prefetch the next batch while training (autotune prefetch buffer size).
+    return dataset.batch(batch_size, drop_remainder=True).prefetch(AUTO) 
+
+
 def main(config):
     params = Config(**load_yaml(config))
     print(params)
 
     set_seed(params.train.seed)
 
-    train_texts = load_dataset(params.input.train_file)
-    valid_texts = load_dataset(params.input.valid_file)
-
     # Build and save tokenizer
     # Build and save tokenizer
     tokenizer = build_tokenizer(params.input.tokenizer_file)
+
+    # bucket_name="pretrained_dataset"
+    # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
+    # gcs_pattern = f'gs://{bucket_name}/clue_datasets/*.tfrec'
+    validation_split = 0.1
+    filenames = tf.io.gfile.glob(params.input.train_file)
+    split = len(filenames) - int(len(filenames) * validation_split)
+    train_fns = filenames[:split]
+    validation_fns = filenames[split:]
+
+    # train_texts = load_dataset(params.input.train_file)
+    # valid_texts = load_dataset(params.input.valid_file)
+
+    
     
     # Tokenizer.from_file(params.input.tokenizer_file)
     # tokenizer.save(params.output.tokenizer_file)
     # tokenizer = TokenizerWrapper(tokenizer)
 
-    # Build data
-    train_dataset = Dataset(
-        tokenizer, train_texts, params.train.block_size, params.train.batch_size
-    )
-    valid_dataset = Dataset(
-        tokenizer, valid_texts, params.train.block_size, params.train.batch_size
-    )
+    # # Build data
+    # train_dataset = Dataset(
+    #     tokenizer, train_texts, params.train.block_size, params.train.batch_size
+    # )
+    # valid_dataset = Dataset(
+    #     tokenizer, valid_texts, params.train.block_size, params.train.batch_size
+    # )
+    train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_train=True)
+    valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
     # Train model
     model = load_or_init_model(
