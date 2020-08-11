@@ -176,7 +176,7 @@ def main(config):
     # valid_dataset = Dataset(
     #     tokenizer, valid_texts, params.train.block_size, params.train.batch_size
     # )
-    train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_train=True)
+    train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
     valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
     # Train model
