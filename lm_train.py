@@ -185,7 +185,6 @@ def main(config):
 
     # When tpu_address is an empty string, we communicate with local TPUs.
     cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
-    print('Running on TPU ', cluster_resolver.as_dict()['worker'])
     tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
 
     # try:

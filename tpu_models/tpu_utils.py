@@ -12,6 +12,7 @@ def tpu_initialize(tpu_address):
     """
     cluster_resolver = tf.distribute.cluster_resolver.TPUClusterResolver(
         tpu=tpu_address)
+    print('Running on TPU ', cluster_resolver.cluster_spec().as_dict()['worker'])
     
     if tpu_address not in ('', 'local'):
         tf.config.experimental_connect_to_cluster(cluster_resolver)
