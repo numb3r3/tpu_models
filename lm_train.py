@@ -75,7 +75,7 @@ def get_dataset(filenames, max_seq_len, batch_size, is_train: bool = True):
     dataset = records.map(parse_tfrecord, num_parallel_calls=AUTO)
   
     if is_train:
-        dataset = dataset.repeat().shuffle(2048)
+        dataset = dataset.shuffle(2048)
 
     # Prefetch the next batch while training (autotune prefetch buffer size).
     return dataset.batch(batch_size, drop_remainder=True).prefetch(AUTO) 
