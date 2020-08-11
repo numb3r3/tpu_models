@@ -158,6 +158,7 @@ def main(config):
     # gcs_pattern = f'gs://{bucket_name}/clue_datasets/*.tfrec'
     validation_split = 0.1
     filenames = tf.io.gfile.glob(params.input.train_file)
+    print(filenames[:5])
     split = len(filenames) - int(len(filenames) * validation_split)
     train_fns = filenames[:split]
     validation_fns = filenames[split:]
