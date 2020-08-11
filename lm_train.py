@@ -64,6 +64,15 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
     }
     def parse_tfrecord(example):
         example = tf.io.parse_single_example(example, name_to_features)
+
+        # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
+        # So cast all int64 to int32.
+        for name in list(example.keys()):
+            t = example[name]
+            if t.dtype == tf.int64:
+                t = tf.cast(t, tf.int32)
+            example[name] = t
+        
                 
         input_ids= example["input_ids"]
 
