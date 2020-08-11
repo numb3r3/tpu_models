@@ -70,7 +70,7 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
 
         # # TODO: consider `attention_mask`
         # return {"input_ids": input_ids[:-1]}, input_ids[1:]
-        return {"input_ids": input_ids, "label": input_ids}
+        return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
         # return example
     
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
@@ -142,6 +142,8 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
     # return d
 
 
+
+
 def main(config):
     params = Config(**load_yaml(config))
     print(params)
@@ -157,7 +159,6 @@ def main(config):
     # gcs_pattern = f'gs://{bucket_name}/clue_datasets/*.tfrec'
     validation_split = 0.1
     filenames = tf.io.gfile.glob(params.input.train_file)
-    print(filenames[:50])
     split = len(filenames) - int(len(filenames) * validation_split)
     train_fns = filenames[:split]
     validation_fns = filenames[split:]
@@ -181,12 +182,24 @@ def main(config):
     train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
     valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
+    try:
+        tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
+        print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
+    except ValueError:
+        raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
+    
+
+    tf.config.experimental_connect_to_cluster(tpu)
+    tf.tpu.experimental.initialize_tpu_system(tpu)
+    tpu_strategy = tf.distribute.TPUStrategy(tpu)
+
     # Train model
-    model = load_or_init_model(
-        pretrained_model_dir=params.input.pretrained_model_dir,
-        vocab_size=len(tokenizer),
-        params=params.model_params,
-    )
+    with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
+        model = load_or_init_model(
+            pretrained_model_dir=params.input.pretrained_model_dir,
+            vocab_size=len(tokenizer),
+            params=params.model_params,
+        )
     val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
     val_best_model.summary()
 
