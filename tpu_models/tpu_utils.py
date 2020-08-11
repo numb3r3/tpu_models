@@ -18,6 +18,10 @@ def tpu_initialize(tpu_address):
         print("[ERROR] exception: %s" % str(ex))
         raise ex
     
+    print('Running on TPU ', cluster_resolver.cluster_spec().as_dict()['worker'])
+    print('Running on TPU ', cluster_resolver.cluster_spec().as_dict()['worker'])
+    print('Running on TPU ', cluster_resolver.cluster_spec().as_dict()['worker'])
+
     
     if tpu_address not in ('', 'local'):
         tf.config.experimental_connect_to_cluster(cluster_resolver)
