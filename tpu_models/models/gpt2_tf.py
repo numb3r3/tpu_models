@@ -2,6 +2,8 @@ from ..callbacks import WarmupScheduler
 from ..callbacks import TransformersCheckpoint
 import transformers
 import tensorflow as tf
+import tensorflow_addons as tfa
+
 import os
 
 
@@ -65,13 +67,20 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
 
     # Create optimizer
     # total_steps = len(train_dataset) * params.train.num_epochs
-    optimizer = tf.keras.optimizers.Adam(
-        lr=params.train.learning_rate,
-        beta_1=0.9,
-        beta_2=0.999,
-        epsilon=1e-08,  # default is 1e-07
-        clipnorm=params.train.max_grad_norm,  # cilipping gradient by L2 norm
-    )
+    # optimizer = tf.keras.optimizers.Adam(
+    #     lr=params.train.learning_rate,
+    #     beta_1=0.9,
+    #     beta_2=0.999,
+    #     epsilon=1e-08,  # default is 1e-07
+    #     clipnorm=params.train.max_grad_norm,  # cilipping gradient by L2 norm
+    # )
+
+    optimizer = tfa.optimizers.RectifiedAdam(
+            lr=params.train.learning_rate,
+            total_steps=total_steps,
+            warmup_proportion=0.1,
+            min_lr=1e-6,
+        )
 
     model.compile(
         optimizer=optimizer,
