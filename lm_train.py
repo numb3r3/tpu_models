@@ -217,8 +217,8 @@ def main(config):
             vocab_size=len(tokenizer),
             params=params.model_params,
         )
-    # val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
-    # val_best_model.summary()
+        val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
+        val_best_model.summary()
 
     # # Evaluate best model with validation set
     # val_best_model.evaluate(valid_dataset)
