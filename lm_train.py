@@ -67,7 +67,7 @@ def get_dataset(filenames, max_seq_len, batch_size, is_train: bool = True):
         input_ids= example["input_ids"]
         # return input_ids[:-1], input_ids[1:]
         # TODO: consider `attention_mask`
-        return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
+        return {"input_ids": input_ids[:-1]}, input_ids[1:]
         
     
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.

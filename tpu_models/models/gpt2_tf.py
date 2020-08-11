@@ -52,7 +52,7 @@ def cross_entropy_loss_with_padding(num_labels, pad_token_id):
 
 # To know more about how to train TFGPT2LMHead, read
 #   https://github.com/huggingface/transformers/issues/2169
-def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10000):
+def train(params, model, tokenizer, train_dataset, valid_dataset):
     # Prepare model directory and path
     os.makedirs(params.output.model_dir, exist_ok=True)
 
@@ -64,7 +64,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
     )
 
     # Create optimizer
-    # total_steps = len(train_dataset) * params.train.num_epochs
+    total_steps = len(train_dataset) * params.train.num_epochs
     optimizer = tf.keras.optimizers.Adam(
         lr=params.train.learning_rate,
         beta_1=0.9,
