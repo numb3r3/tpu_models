@@ -8,6 +8,7 @@ from transformers.tokenization_bert import BertTokenizer
 from tpu_models.models.gpt2_tf import load_or_init_model, train
 from tpu_models.utils import load_yaml, set_seed
 from tpu_models.config import Config
+from tpu_models.tpu_utils import tpu_initialize
 
 def load_dataset(path):
     texts = []
@@ -182,16 +183,21 @@ def main(config):
     train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
     valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
-    try:
-        tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
-        print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
-    except ValueError:
-        raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
+    # When tpu_address is an empty string, we communicate with local TPUs.
+    cluster_resolver = tpu_initialize.tpu_initialize("tpu-quickstart")
+    print('Running on TPU ', cluster_resolver.as_dict()['worker'])
+    tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
+
+    # try:
+    #     tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
+    #     print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
+    # except ValueError:
+    #     raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
     
 
-    tf.config.experimental_connect_to_cluster(tpu)
-    tf.tpu.experimental.initialize_tpu_system(tpu)
-    tpu_strategy = tf.distribute.TPUStrategy(tpu)
+    # tf.config.experimental_connect_to_cluster(tpu)
+    # tf.tpu.experimental.initialize_tpu_system(tpu)
+    # tpu_strategy = tf.distribute.TPUStrategy(tpu)
 
     # Train model
     with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
