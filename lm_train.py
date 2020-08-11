@@ -195,7 +195,10 @@ def main(config):
     # When tpu_address is an empty string, we communicate with local TPUs.
     cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
     tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
-    print(tpu_strategy)
+    
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
     # try:
     #     tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
     #     print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
