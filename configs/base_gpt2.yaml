@@ -1,7 +1,7 @@
 # Path of input and output resources
 input:
-    train_file: gs://zh_clue_data/clue_datasets/clue_pretrain_0023214.txt
-    valid_file: gs://zh_clue_data/clue_datasets/clue_pretrain_0023214.txt
+    train_file: train.txt
+    valid_file: eval.txt
     tokenizer_file: gs://zh_clue_data/models/bert-base-chinese-vocab.txt
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
