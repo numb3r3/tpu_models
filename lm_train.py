@@ -184,7 +184,7 @@ def main(config):
     valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
     # When tpu_address is an empty string, we communicate with local TPUs.
-    cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
+    cluster_resolver = tpu_utils.tpu_initialize("10.240.1.2")
     tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
 
     # try:
