@@ -112,6 +112,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
         epochs=params.train.num_epochs,
         callbacks=callbacks_list,
         validation_data=valid_dataset,
+        verbose=True
     )
 
     # Restore the best model and save it as pretrained model format
