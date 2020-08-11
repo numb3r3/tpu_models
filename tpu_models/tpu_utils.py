@@ -15,6 +15,7 @@ def tpu_initialize(tpu_address):
             tpu=tpu_address)
         print('Running on TPU ', cluster_resolver.cluster_spec().as_dict()['worker'])
     except Exception as ex:
+        print("[ERROR] exception: %s" % str(ex))
         raise ex
     
     
