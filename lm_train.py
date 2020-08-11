@@ -65,10 +65,12 @@ def get_dataset(filenames, max_seq_len, batch_size, is_train: bool = True):
         
         example = tf.io.parse_single_example(example, name_to_features)
         input_ids= example["input_ids"]
+
         # return input_ids[:-1], input_ids[1:]
-        # TODO: consider `attention_mask`
-        return {"input_ids": input_ids[:-1]}, input_ids[1:]
-        
+
+        # # TODO: consider `attention_mask`
+        # return {"input_ids": input_ids[:-1]}, input_ids[1:]
+        return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
     
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
     records = tf.data.TFRecordDataset(filenames, num_parallel_reads=AUTO)
@@ -77,8 +79,11 @@ def get_dataset(filenames, max_seq_len, batch_size, is_train: bool = True):
     if is_train:
         dataset = dataset.shuffle(2048)
 
+    def parse_mini_batch(batch_data):
+        return {"input_ids": batch_data["input_ids"]}, batch_data["label"]
+        
     # Prefetch the next batch while training (autotune prefetch buffer size).
-    return dataset.batch(batch_size, drop_remainder=True).prefetch(AUTO) 
+    return dataset.batch(batch_size, drop_remainder=True).map(parse_mini_batch).prefetch(AUTO) 
 
 
 def main(config):
