@@ -26,7 +26,7 @@ MAX_SEQ_LEN = 0
 
 
 def build_tfrecord(
-    raw_data_path, tokenizer, min_length: int = 5, max_seq_len: int = 256,
+    raw_data_path, save_tfrecord_path, tokenizer, min_length: int = 5, max_seq_len: int = 256,
 ):
     
     def parse_example(ids, attention_mask, label):
@@ -37,7 +37,7 @@ def build_tfrecord(
         }
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
-    # tf_writer = tf.io.TFRecordWriter(save_tfrecord_path)
+    tf_writer = tf.io.TFRecordWriter(save_tfrecord_path)
 
     # max_len = 0
 
@@ -77,10 +77,9 @@ def build_tfrecord(
             #     max_len = len(input_ids)
 
             example = parse_example(input_ids, input_masks, lm_label)
-            # tf_writer.write(example.SerializeToString())
-            yield example
+            tf_writer.write(example.SerializeToString())
 
-    # tf_writer.close()
+    tf_writer.close()
     # return max_len
 
 
@@ -106,9 +105,9 @@ def main():
         args.tokenizer_name_or_path, do_lower_case=True
     )
 
-    tf_writer = tf.io.TFRecordWriter(args.target_path)
+    # tf_writer = tf.io.TFRecordWriter(args.target_path)
 
-    # target_path = args.target_path
+    target_path = args.target_path
 
     # max_len = 0
     for root, dirname, files in os.walk(args.data_path):
@@ -117,27 +116,27 @@ def main():
             raw_data_path = os.path.join(root, fn)
             print(f"processing: {base_name}")
 
-            for example in build_tfrecord(
+            # for example in build_tfrecord(
+            #     raw_data_path,
+            #     tokenizer,
+            #     min_length=args.min_length,
+            #     max_seq_len=args.n_ctx,
+            # ):
+
+            #     tf_writer.write(example.SerializeToString())
+
+            save_tfrecord_path = f"{target_path}/{base_name}.tfrec"
+            _max_len = build_tfrecord(
                 raw_data_path,
+                save_tfrecord_path,
                 tokenizer,
                 min_length=args.min_length,
                 max_seq_len=args.n_ctx,
-            ):
-
-                tf_writer.write(example.SerializeToString())
-
-    #         save_tfrecord_path = f"{target_path}/{base_name}.tfrec"
-    #         _max_len = build_tfrecord(
-    #             raw_data_path,
-    #             save_tfrecord_path,
-    #             tokenizer,
-    #             min_length=args.min_length,
-    #             max_seq_len=args.n_ctx,
-    #         )
+            )
     #         if _max_len > max_len:
     #             max_len = _max_len
     # print("max length: %d" % max_len)
-    tf_writer.close()
+    # tf_writer.close()
 
 
 if __name__ == "__main__":
