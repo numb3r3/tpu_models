@@ -1,10 +1,10 @@
-from ..callbacks import WarmupScheduler
-from ..callbacks import TransformersCheckpoint
-import transformers
+import os
+
 import tensorflow as tf
 import tensorflow_addons as tfa
+import transformers
 
-import os
+from ..callbacks import TransformersCheckpoint, WarmupScheduler
 
 
 def init_model(vocab_size, params):
@@ -54,7 +54,16 @@ def cross_entropy_loss_with_padding(num_labels, pad_token_id):
 
 # To know more about how to train TFGPT2LMHead, read
 #   https://github.com/huggingface/transformers/issues/2169
-def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10000):
+#   https://github.com/tensorflow/tensorflow/issues/41074
+def train(
+    params,
+    model,
+    tokenizer,
+    train_dataset,
+    valid_dataset,
+    total_steps=10000,
+    run_eagerly=False,
+):
     # Prepare model directory and path
     os.makedirs(params.output.model_dir, exist_ok=True)
 
@@ -89,7 +98,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
         #     keras.metrics.SparseCategoricalCrossentropy(from_logits=True),
         #     keras.metrics.SparseCategoricalAccuracy(),
         # ],
-        run_eagerly = False,
+        run_eagerly=run_eagerly,
     )
 
     callbacks_list = [
@@ -121,7 +130,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
         train_dataset,
         epochs=params.train.num_epochs,
         callbacks=callbacks_list,
-        validation_data=valid_dataset
+        validation_data=valid_dataset,
     )
 
     # Restore the best model and save it as pretrained model format

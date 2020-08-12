@@ -6,27 +6,27 @@ Google Drive direct download of big files
 Requirements
 ============
 
-*wget* and *Perl* must be in the PATH.   
+*wget* and *Perl* must be in the PATH.
 **Windows** and **linux** compatible.
 
 Usage
 =====
 
-Use Google Drive shareable links, viewable by anyone:   
+Use Google Drive shareable links, viewable by anyone:
 
-    $ ./gdown.pl 'gdrive file url' ['desired file name']   
+    $ ./gdown.pl 'gdrive file url' ['desired file name']
 
 Example
 =======
 
 For example, to download [this video](https://drive.google.com/file/d/0B1L_hFrWJfRhLUJZdXdSdTdfSWs/edit) from my [axolotl project](https://circulosmeos.wordpress.com/2015/03/04/axolotl-a-simple-plain-text-documentation-system/), just copy the url, and give a file name if desired:
 
-    $ ./gdown.pl https://drive.google.com/file/d/0B1L_hFrWJfRhLUJZdXdSdTdfSWs/edit axolotl.mp4   
+    $ ./gdown.pl https://drive.google.com/file/d/0B1L_hFrWJfRhLUJZdXdSdTdfSWs/edit axolotl.mp4
 
 Resuming a download
 ===================
 
-If you need to resume a download, please, use [**gdown.pl v2.0** here](https://github.com/circulosmeos/gdown.pl/tree/with-resume).   
+If you need to resume a download, please, use [**gdown.pl v2.0** here](https://github.com/circulosmeos/gdown.pl/tree/with-resume).
 As long as a file name is indicated as second parameter, *gdown.pl v2.0* **will try to resume the partially downloaded file** if a local incomplete file with that name already exists.
 
 Version
@@ -62,4 +62,4 @@ More info
 Contact
 =======
 
-by [circulosmeos](loopidle@gmail.com)   
+by [circulosmeos](loopidle@gmail.com)

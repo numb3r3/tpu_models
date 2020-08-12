@@ -1,14 +1,14 @@
+import math
 
+import numpy as np
 import tensorflow as tf
 import transformers
-import numpy as np
-import math
 from transformers.tokenization_bert import BertTokenizer
 
+from tpu_models import tpu_utils
+from tpu_models.config import Config
 from tpu_models.models.gpt2_tf import load_or_init_model, train
 from tpu_models.utils import load_yaml, set_seed
-from tpu_models.config import Config
-from tpu_models import tpu_utils
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -64,11 +64,19 @@ class Dataset(tf.keras.utils.Sequence):
         return math.ceil(len(self._samples) / self._batch_size)
 
 
-def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is_training: bool = True, evaluate_for_fixed_number_of_steps=True):
+def get_dataset(
+    input_files,
+    max_seq_len,
+    batch_size,
+    num_cpu_threads: int = 4,
+    is_training: bool = True,
+    evaluate_for_fixed_number_of_steps=True,
+):
     AUTO = tf.data.experimental.AUTOTUNE
     name_to_features = {
         "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
     }
+
     def parse_tfrecord(example):
         example = tf.io.parse_single_example(example, name_to_features)
 
@@ -79,9 +87,8 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
             if t.dtype == tf.int64:
                 t = tf.cast(t, tf.int32)
             example[name] = t
-        
-                
-        input_ids= example["input_ids"]
+
+        input_ids = example["input_ids"]
 
         # return input_ids[:-1], input_ids[1:]
 
@@ -89,11 +96,11 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
         # return {"input_ids": input_ids[:-1]}, input_ids[1:]
         return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
         # return example
-    
+
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
     records = tf.data.TFRecordDataset(input_files, num_parallel_reads=AUTO)
     dataset = records.map(parse_tfrecord, num_parallel_calls=AUTO)
-  
+
     if is_training:
         dataset = dataset.shuffle(2048)
 
@@ -101,12 +108,15 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
         return {"input_ids": batch_data["input_ids"]}, batch_data["label"]
 
     # Prefetch the next batch while training (autotune prefetch buffer size).
-    return dataset.batch(batch_size, drop_remainder=True).map(parse_mini_batch, num_parallel_calls=AUTO).prefetch(AUTO)
+    return (
+        dataset.batch(batch_size, drop_remainder=True)
+        .map(parse_mini_batch, num_parallel_calls=AUTO)
+        .prefetch(AUTO)
+    )
 
     # name_to_features = {
     #     "input_ids": tf.io.FixedLenFeature([max_seq_len], tf.int64),
     # }
-
 
     # def _decode_record(record, name_to_features):
     #     """Decodes a record to a TensorFlow example."""
@@ -159,8 +169,6 @@ def get_dataset(input_files, max_seq_len, batch_size, num_cpu_threads: int=4, is
     # return d
 
 
-
-
 def main(config):
     params = Config(**load_yaml(config))
     print(params)
@@ -183,8 +191,6 @@ def main(config):
     # train_texts = load_dataset(params.input.train_file)
     # valid_texts = load_dataset(params.input.valid_file)
 
-    
-    
     # Tokenizer.from_file(params.input.tokenizer_file)
     # tokenizer.save(params.output.tokenizer_file)
     # tokenizer = TokenizerWrapper(tokenizer)
@@ -205,28 +211,34 @@ def main(config):
     # tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
     # tpu_strategy.experimental_enable_dynamic_batch_size = False
 
-    
     try:
-        tpu = tf.distribute.cluster_resolver.TPUClusterResolver("tpu-quickstart")  # TPU detection
-        print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
+        tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
+            "tpu-quickstart"
+        )  # TPU detection
+        print("Running on TPU ", tpu.cluster_spec().as_dict()["worker"])
 
         tf.config.experimental_connect_to_cluster(tpu)
         tf.tpu.experimental.initialize_tpu_system(tpu)
         tpu_strategy = tf.distribute.TPUStrategy(tpu)
     except ValueError:
-        raise BaseException('ERROR: Not connected to a TPU runtime;')
-    
+        raise BaseException("ERROR: Not connected to a TPU runtime;")
 
-    logger.info('Running with TPUStrategy on TPU {} with {} cores '
-                .format(tpu.cluster_spec().as_dict()['worker'],
-                        tpu_strategy.num_replicas_in_sync))
-    
+    logger.info(
+        "Running with TPUStrategy on TPU {} with {} cores ".format(
+            tpu.cluster_spec().as_dict()["worker"], tpu_strategy.num_replicas_in_sync
+        )
+    )
+
     batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
 
     # Train model
-    with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=batch_size, is_training=True)
-        valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=batch_size)
+    with tpu_strategy.scope():  # creating the model in the TPUStrategy scope means we will train the model on the TPU
+        train_dataset = get_dataset(
+            train_fns, max_seq_len=128, batch_size=batch_size, is_training=True
+        )
+        valid_dataset = get_dataset(
+            validation_fns, max_seq_len=128, batch_size=batch_size
+        )
 
         model = load_or_init_model(
             pretrained_model_dir=params.input.pretrained_model_dir,
