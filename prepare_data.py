@@ -96,7 +96,7 @@ def main():
         "--min_length", default=10, type=int, required=False, help="最短收录句子长度"
     )
     parser.add_argument(
-        "--n_ctx", default=256, type=int, required=False, help="每个训练样本的长度"
+        "--n_ctx", default=512, type=int, required=False, help="每个训练样本的长度"
     )
 
     args = parser.parse_args()
