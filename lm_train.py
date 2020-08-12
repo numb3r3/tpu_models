@@ -193,24 +193,26 @@ def main(config):
     # train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
     # valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
-    # When tpu_address is an empty string, we communicate with local TPUs.
-    cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
-    tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
-    tpu_strategy.experimental_enable_dynamic_batch_size = False
+    # # When tpu_address is an empty string, we communicate with local TPUs.
+    # cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
+    # tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
+    # tpu_strategy.experimental_enable_dynamic_batch_size = False
 
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
-    # try:
-    #     tpu = tf.distribute.cluster_resolver.TPUClusterResolver()  # TPU detection
-    #     print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
-    # except ValueError:
-    #     raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
+    
+    try:
+        tpu = tf.distribute.cluster_resolver.TPUClusterResolver("tpu-quickstart")  # TPU detection
+        print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
+    except ValueError:
+        raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
     
 
-    # tf.config.experimental_connect_to_cluster(tpu)
-    # tf.tpu.experimental.initialize_tpu_system(tpu)
-    # tpu_strategy = tf.distribute.TPUStrategy(tpu)
+    tf.config.experimental_connect_to_cluster(tpu)
+    tf.tpu.experimental.initialize_tpu_system(tpu)
+    tpu_strategy = tf.distribute.TPUStrategy(tpu)
+
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
+    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
 
     # Train model
     with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
@@ -219,8 +221,9 @@ def main(config):
             vocab_size=len(tokenizer),
             params=params.model_params,
         )
-        val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
-        val_best_model.summary()
+
+    val_best_model = train(params, model, tokenizer, train_dataset, valid_dataset)
+    val_best_model.summary()
 
     # # Evaluate best model with validation set
     # val_best_model.evaluate(valid_dataset)
