@@ -1,11 +1,12 @@
-import transformers
-import tensorflow as tf
-import os
-import json
-import random
-import numpy as np
 import argparse
+import json
+import os
+import random
 from datetime import datetime
+
+import numpy as np
+import tensorflow as tf
+import transformers
 from tqdm import tqdm
 from transformers.tokenization_bert import BertTokenizer
 
@@ -16,27 +17,34 @@ def _int64_feature(value):
         value = [value]
     return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
 
+
 def filter_text(text):
     return text
 
 
-def build_tfrecord(raw_data_path, save_tfrecord_path, tokenizer, min_length:int = 5, max_seq_len: int=256):
+def build_tfrecord(
+    raw_data_path,
+    save_tfrecord_path,
+    tokenizer,
+    min_length: int = 5,
+    max_seq_len: int = 256,
+):
     def ids_example(ids):
         feature = {
-            'input_ids': _int64_feature(ids),
+            "input_ids": _int64_feature(ids),
         }
         return tf.train.Example(features=tf.train.Features(feature=feature))
-
 
     tf_writer = tf.io.TFRecordWriter(save_tfrecord_path)
 
     max_len = 0
 
-    with open(raw_data_path, 'r', encoding='utf8') as f:
+    with open(raw_data_path, "r", encoding="utf8") as f:
         for line in tqdm(f):
             line = line.strip()
             line = filter_text(line)
-            if not line or len(line) <= min_length: continue
+            if not line or len(line) <= min_length:
+                continue
 
             tokenized_dict = tokenizer.encode_plus(
                 line,
@@ -63,20 +71,25 @@ def build_tfrecord(raw_data_path, save_tfrecord_path, tokenizer, min_length:int 
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--tokenizer_name_or_path', type=str, required=True, help='词典地址')
-    parser.add_argument('--data_path', type=str, help='原始语料地址')
-    parser.add_argument('--target_path', type=str,  help='处理后的语料存放地址')
-    parser.add_argument('--min_length', default=10, type=int, required=False, help='最短收录句子长度')
-    parser.add_argument('--n_ctx', default=256, type=int, required=False, help='每个训练样本的长度')
-    
+    parser.add_argument(
+        "--tokenizer_name_or_path", type=str, required=True, help="词典地址"
+    )
+    parser.add_argument("--data_path", type=str, help="原始语料地址")
+    parser.add_argument("--target_path", type=str, help="处理后的语料存放地址")
+    parser.add_argument(
+        "--min_length", default=10, type=int, required=False, help="最短收录句子长度"
+    )
+    parser.add_argument(
+        "--n_ctx", default=256, type=int, required=False, help="每个训练样本的长度"
+    )
 
     args = parser.parse_args()
-    print('args:\n' + args.__repr__())
+    print("args:\n" + args.__repr__())
 
     tokenizer = BertTokenizer.from_pretrained(
         args.tokenizer_name_or_path, do_lower_case=True
     )
-    
+
     target_path = args.target_path
 
     max_len = 0
@@ -85,11 +98,17 @@ def main():
             base_name = os.path.splitext(fn)[0]
             raw_data_path = os.path.join(root, fn)
             save_tfrecord_path = f"{target_path}/{base_name}.tfrec"
-            _max_len = build_tfrecord(raw_data_path, save_tfrecord_path, tokenizer, min_length = args.min_length, max_seq_len =args.n_ctx)
+            _max_len = build_tfrecord(
+                raw_data_path,
+                save_tfrecord_path,
+                tokenizer,
+                min_length=args.min_length,
+                max_seq_len=args.n_ctx,
+            )
             if _max_len > max_len:
                 max_len = _max_len
     print("max length: %d" % max_len)
 
-          
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
