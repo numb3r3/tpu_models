@@ -10,6 +10,13 @@ from tpu_models.utils import load_yaml, set_seed
 from tpu_models.config import Config
 from tpu_models import tpu_utils
 
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
+
+logger = tf.get_logger()
+logger.info(tf.__version__)
+
+
 def load_dataset(path):
     texts = []
     for line in open(path, "r", encoding="utf-8"):
@@ -202,17 +209,17 @@ def main(config):
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver("tpu-quickstart")  # TPU detection
         print('Running on TPU ', tpu.cluster_spec().as_dict()['worker'])
+
+        tf.config.experimental_connect_to_cluster(tpu)
+        tf.tpu.experimental.initialize_tpu_system(tpu)
+        tpu_strategy = tf.distribute.TPUStrategy(tpu)
     except ValueError:
-        raise BaseException('ERROR: Not connected to a TPU runtime; please see the previous cell in this notebook for instructions!')
+        raise BaseException('ERROR: Not connected to a TPU runtime;')
     
 
-    tf.config.experimental_connect_to_cluster(tpu)
-    tf.tpu.experimental.initialize_tpu_system(tpu)
-    tpu_strategy = tf.distribute.TPUStrategy(tpu)
-
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
-    print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
+    logger.info('Running with TPUStrategy on TPU {} with {} cores '
+                .format(tpu.cluster_spec().as_dict()['worker'],
+                        tpu_strategy.num_replicas_in_sync))
 
     # Train model
     with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU

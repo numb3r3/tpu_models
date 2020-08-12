@@ -89,6 +89,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
         #     keras.metrics.SparseCategoricalCrossentropy(from_logits=True),
         #     keras.metrics.SparseCategoricalAccuracy(),
         # ],
+        run_eagerly = False,
     )
 
     callbacks_list = [
