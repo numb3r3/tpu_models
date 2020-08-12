@@ -1,6 +1,7 @@
 # Path of input and output resources
 input:
-    train_file: gs://pretrained_dataset/clue_datasets/*.tfrec
+    # train_file: gs://pretrained_dataset/clue_datasets/*.tfrec
+    train_file: train.txt
     valid_file: eval.txt
     tokenizer_file: data/vocab/bert-base-chinese-vocab.txt
     # If pretrained_model_dir is set except for null,

@@ -173,8 +173,8 @@ def main(config):
     train_fns = filenames[:split]
     validation_fns = filenames[split:]
 
-    # train_texts = load_dataset(params.input.train_file)
-    # valid_texts = load_dataset(params.input.valid_file)
+    train_texts = load_dataset(params.input.train_file)
+    valid_texts = load_dataset(params.input.valid_file)
 
     
     
@@ -182,21 +182,22 @@ def main(config):
     # tokenizer.save(params.output.tokenizer_file)
     # tokenizer = TokenizerWrapper(tokenizer)
 
-    # # Build data
-    # train_dataset = Dataset(
-    #     tokenizer, train_texts, params.train.block_size, params.train.batch_size
-    # )
-    # valid_dataset = Dataset(
-    #     tokenizer, valid_texts, params.train.block_size, params.train.batch_size
-    # )
-    train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
-    valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
+    # Build data
+    train_dataset = Dataset(
+        tokenizer, train_texts, params.train.block_size, params.train.batch_size
+    )
+    valid_dataset = Dataset(
+        tokenizer, valid_texts, params.train.block_size, params.train.batch_size
+    )
+
+    # train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
+    # valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
 
     # When tpu_address is an empty string, we communicate with local TPUs.
     cluster_resolver = tpu_utils.tpu_initialize("tpu-quickstart")
     tpu_strategy = tf.distribute.TPUStrategy(cluster_resolver)
     tpu_strategy.experimental_enable_dynamic_batch_size = False
-    
+
     print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
     print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
     print("num_replicas_in_sync: %d" % tpu_strategy.num_replicas_in_sync)
