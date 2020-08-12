@@ -220,11 +220,13 @@ def main(config):
     logger.info('Running with TPUStrategy on TPU {} with {} cores '
                 .format(tpu.cluster_spec().as_dict()['worker'],
                         tpu_strategy.num_replicas_in_sync))
+    
+    batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
 
     # Train model
     with tpu_strategy.scope(): # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=params.train.batch_size, is_training=True)
-        valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=params.train.batch_size)
+        train_dataset = get_dataset(train_fns, max_seq_len=128, batch_size=batch_size, is_training=True)
+        valid_dataset = get_dataset(validation_fns, max_seq_len=128, batch_size=batch_size)
 
         model = load_or_init_model(
             pretrained_model_dir=params.input.pretrained_model_dir,
