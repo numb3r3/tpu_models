@@ -125,8 +125,9 @@ def main():
 
             #     tf_writer.write(example.SerializeToString())
 
-            save_tfrecord_path = f"{target_path}/{base_name}.tfrec"
-            _max_len = build_tfrecord(
+            # save_tfrecord_path = f"{target_path}/{base_name}.tfrec"
+            save_tfrecord_path = os.path.join(target_path, f"{base_name}.tfrec")
+            build_tfrecord(
                 raw_data_path,
                 save_tfrecord_path,
                 tokenizer,

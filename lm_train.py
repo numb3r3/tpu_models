@@ -16,6 +16,12 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 logger = tf.get_logger()
 logger.info(tf.__version__)
 
+import wandb
+
+# Initialize a new W&B run – You can change your project name here.
+# For more config options, see https://docs.wandb.com/docs/init.html
+wandb.init(project="tpu_gpt2", sync_tensorboard=True)
+
 
 def load_dataset(path):
     texts = []

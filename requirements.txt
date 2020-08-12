@@ -2,3 +2,4 @@ envyaml
 fire
 pydantic
 transformers
+wandb

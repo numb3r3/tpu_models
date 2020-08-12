@@ -3,6 +3,7 @@ import os
 import tensorflow as tf
 import tensorflow_addons as tfa
 import transformers
+from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
 
@@ -112,7 +113,7 @@ def train(
             monitor="val_loss",
             save_best_only=True,
         ),
-        # TransformersCheckpoint(model=model, save_dir=params.output.model_dir),
+        TransformersCheckpoint(model=model, save_dir=params.output.model_dir),
         tf.keras.callbacks.TensorBoard(
             log_dir=params.output.tensorboard_dir,
             update_freq="batch",
@@ -123,6 +124,7 @@ def train(
         # WarmupScheduler(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
         # ),
+        WandbCallback(),
     ]
 
     # Train model
