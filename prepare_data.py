@@ -28,6 +28,7 @@ MAX_SEQ_LEN = 0
 def build_tfrecord(
     raw_data_path, tokenizer, min_length: int = 5, max_seq_len: int = 256,
 ):
+    
     def parse_example(ids, attention_mask, label):
         feature = {
             "input_ids": _int64_feature(ids),
@@ -66,9 +67,10 @@ def build_tfrecord(
             input_masks += [0] * (max_seq_len + 1 - length)
             lm_label = input_ids[:] + [-100] * (max_seq_len + 1 - length)
             
-            if length > MAX_SEQ_LEN:
-                MAX_SEQ_LEN = length
-                print("MAX_SEQ_LEN: ----------> %d" % MAX_SEQ_LEN)
+            # global MAX_SEQ_LEN
+            # if length > MAX_SEQ_LEN:
+            #     MAX_SEQ_LEN = length
+            #     print("MAX_SEQ_LEN: ----------> %d" % MAX_SEQ_LEN)
             
 
             # if len(input_ids) > max_len:
@@ -94,7 +96,7 @@ def main():
         "--min_length", default=10, type=int, required=False, help="最短收录句子长度"
     )
     parser.add_argument(
-        "--n_ctx", default=128, type=int, required=False, help="每个训练样本的长度"
+        "--n_ctx", default=256, type=int, required=False, help="每个训练样本的长度"
     )
 
     args = parser.parse_args()
