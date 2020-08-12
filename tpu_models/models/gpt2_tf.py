@@ -103,7 +103,7 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
             monitor="val_loss",
             save_best_only=True,
         ),
-        TransformersCheckpoint(model=model, save_dir=params.output.model_dir),
+        # TransformersCheckpoint(model=model, save_dir=params.output.model_dir),
         tf.keras.callbacks.TensorBoard(
             log_dir=params.output.tensorboard_dir,
             update_freq="batch",
@@ -111,9 +111,9 @@ def train(params, model, tokenizer, train_dataset, valid_dataset, total_steps=10
             # See more details here https://github.com/tensorflow/tensorboard/issues/2412
             profile_batch=0,
         ),
-        WarmupScheduler(
-            total_steps * params.train.warmup_rate, params.train.learning_rate
-        ),
+        # WarmupScheduler(
+        #     total_steps * params.train.warmup_rate, params.train.learning_rate
+        # ),
     ]
 
     # Train model
