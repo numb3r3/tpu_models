@@ -3,15 +3,15 @@ input:
     train_file: gs://pretrained_dataset/clue_datasets/*.tfrec
     # train_file: train.txt
     valid_file: eval.txt
-    tokenizer_file: data/vocab/bert-base-chinese-vocab.txt
+    tokenizer_file: gs://zh_clue_data/vocab/bert-base-chinese-vocab.txt
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
     pretrained_model_dir: null
 output:
-    model_dir:       data/models/output/model
-    tokenizer_file:  data/models/output/model/tokenizer.json
-    tensorboard_dir: data/models/output/tensorboard
-    checkpoint_path: data/models/output/ckpt.h5
+    model_dir:       gs://zh_clue_data/models/output/model
+    tokenizer_file:  gs://zh_clue_data/models/output/model/tokenizer.json
+    tensorboard_dir: gs://zh_clue_data/models/output/tensorboard
+    checkpoint_path: gs://zh_clue_data/models/output/ckpt.h5
 
 
 # model_params is used when pretrained_model_dir is set to null
