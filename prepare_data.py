@@ -25,9 +25,11 @@ def filter_text(text):
 def build_tfrecord(
     raw_data_path, tokenizer, min_length: int = 5, max_seq_len: int = 256,
 ):
-    def ids_example(ids):
+    def parse_example(ids, attention_mask, label):
         feature = {
             "input_ids": _int64_feature(ids),
+            "attention_mask": _int64_feature(attention_mask),
+            "lm_label": _int64_feature(label),
         }
         return tf.train.Example(features=tf.train.Features(feature=feature))
 
@@ -46,19 +48,27 @@ def build_tfrecord(
                 line,
                 text_pair=None,
                 add_special_tokens=False,
-                max_length=max_seq_len,
+                max_length=max_seq_len+1,
                 truncation=True,
-                pad_to_max_length=True,
+                pad_to_max_length=False,
             )
             input_ids, input_masks = (
                 tokenized_dict["input_ids"],
                 tokenized_dict["attention_mask"],
             )
 
+            length = len(input_ids)
+
+            input_ids += [tokenizer.pad_token_id] * (max_seq_len + 1 - length)
+            input_masks += [0] * (max_seq_len + 1 - length)
+            lm_label = input_ids[:] + [-100] * (max_seq_len + 1 - length)
+            
+            
+
             # if len(input_ids) > max_len:
             #     max_len = len(input_ids)
 
-            example = ids_example(input_ids)
+            example = parse_example(input_ids, input_masks, lm_label)
             # tf_writer.write(example.SerializeToString())
             yield example
 
