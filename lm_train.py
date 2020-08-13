@@ -69,6 +69,9 @@ def main(config):
 
     # set_seed(params.train.seed)
 
+    batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
+    vocab_size = params.model_params.vocab_size
+
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
     train_fns = tf.io.gfile.glob(params.input.train_file)
     validation_fns = tf.io.gfile.glob(params.input.valid_file)
@@ -101,8 +104,7 @@ def main(config):
         )
     )
 
-    batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
-    vocab_size = params.model_params.vocab_size
+    
 
     # Train model
     with tpu_strategy.scope():  # creating the model in the TPUStrategy scope means we will train the model on the TPU
