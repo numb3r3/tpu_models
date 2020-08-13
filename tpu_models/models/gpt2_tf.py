@@ -30,7 +30,7 @@ def load_or_init_model(pretrained_model_dir, vocab_size, params):
     # Train model
     if pretrained_model_dir:
         print(f"[INFO] load model from {pretrained_model_dir}")
-        global_step = int(args.checkpoint.split("-")[-1].split("/")[0])
+        global_step = int(pretrained_model_dir.split("-")[-1].split("/")[0])
         print(f"[INFO] starting from global step {global_step}")
         model = transformers.TFGPT2LMHeadModel.from_pretrained(pretrained_model_dir)
     else:

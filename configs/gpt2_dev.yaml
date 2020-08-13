@@ -7,7 +7,7 @@ input:
     tokenizer_file: bert-base-chinese-unk
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
-    pretrained_model_dir: null
+    pretrained_model_dir: gs://zh_clue_data/models/output/model/checkpoint-step-209
 output:
     model_dir:       gs://zh_clue_data/models/output/model
     tokenizer_file:  gs://zh_clue_data/models/output/model/tokenizer.json
@@ -29,7 +29,7 @@ train:
     seed: 1234
 
     num_epochs: 10
-    batch_size: 200
+    batch_size: 168
     max_seq_len: 128
 
     learning_rate: 5e-5
