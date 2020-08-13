@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import random
 import tensorflow as tf
 import transformers
 import wandb
@@ -44,6 +45,8 @@ def create_dataset(
         input_ids = example["input_ids"][: max_seq_len + 1]
 
         return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
+
+    random.shuffle(input_files)
 
     # Read from TFRecords. For optimal performance, we interleave reads from multiple files.
     records = tf.data.TFRecordDataset(input_files, num_parallel_reads=AUTO)
