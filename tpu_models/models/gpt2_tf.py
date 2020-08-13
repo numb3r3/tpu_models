@@ -1,13 +1,13 @@
 import os
 
 import tensorflow as tf
-import tensorflow_addons as tfa
 import transformers
-from transformers.optimization_tf import create_optimizer
+from transformers import optimization_tf
+
 from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
-from ..optimizers_tf import AdafactorOptimizer
+# from ..optimizers_tf import AdafactorOptimizer
 
 logger = tf.get_logger()
 logger.info(tf.__version__)
@@ -89,7 +89,7 @@ def train(
     num_warmup_steps = params.train.warmup_rate * steps_per_epoch
 
     # Setup the optimizer and the learning rate scheduler.
-    optimizer, lr_scheduler = create_optimizer(
+    optimizer, lr_scheduler = optimization_tf.create_optimizer(
         learning_rate,
         num_train_steps,
         num_warmup_steps,
