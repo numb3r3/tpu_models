@@ -25,7 +25,7 @@ class ConfigTrain(BaseModel):
     steps_per_epoch: int
     learning_rate: float
     max_grad_norm: float
-    weight_decay: float
+    weight_decay_rate: float
     warmup_rate: float
     patience: float
 

@@ -85,18 +85,18 @@ def train(
 
     learning_rate = params.train.learning_rate
     steps_per_epoch = params.train.steps_per_epoch
-    num_total_steps = params.train.num_epochs * steps_per_epoch
-    warmup_steps = params.train.warmup_rate * steps_per_epoch
+    num_train_steps = params.train.num_epochs * steps_per_epoch
+    num_warmup_steps = params.train.warmup_rate * steps_per_epoch
 
     # Setup the optimizer and the learning rate scheduler.
     optimizer, lr_scheduler = create_optimizer(
         learning_rate,
-        num_total_steps,
-        warmup_steps,
+        num_train_steps,
+        num_warmup_steps,
         adam_beta1=0.9,
         adam_beta2=0.999,
         adam_epsilon=1e-8,
-        weight_decay_rate=params.train.weight_decay,
+        weight_decay_rate=params.train.weight_decay_rate,
     )
 
     # optimizer = AdafactorOptimizer(
