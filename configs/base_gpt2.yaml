@@ -11,7 +11,7 @@ input:
 output:
     model_dir:       gs://zh_clue_data/models/gpt2/output/model
     tokenizer_file:  gs://zh_clue_data/models/gpt2/output/model/tokenizer.json
-    tensorboard_dir: logs/gpt2/output/tensorboard
+    tensorboard_dir: gs://zh_clue_data/models/gpt2/output/tensorboard
     checkpoint_path: gs://zh_clue_data/models/gpt2/output/ckpt.h5
 
 
