@@ -72,10 +72,9 @@ def main(config):
     
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
     train_fns = tf.io.gfile.glob(params.input.train_file)
-    validation_fns = tf.io.gfile.glob(params.input.valid_file)
+    validation_fns = tf.io.gfile.glob(params.input.valid_file)[:2]
 
     
-
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
             "tpu-quickstart"
