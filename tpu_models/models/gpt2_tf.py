@@ -136,7 +136,8 @@ def train(
         ),
         tf.keras.callbacks.TensorBoard(
             log_dir=params.output.tensorboard_dir,
-            update_freq="batch",
+            write_graph=False,
+            update_freq=100,
             # To automatically refresh Tensorboard , set profile_batch=0
             # See more details here https://github.com/tensorflow/tensorboard/issues/2412
             profile_batch=0,
