@@ -22,6 +22,7 @@ class ConfigTrain(BaseModel):
     seed: int
     num_epochs: int
     batch_size: int
+    max_seq_len: int
     steps_per_epoch: int
     learning_rate: float
     max_grad_norm: float

@@ -23,11 +23,14 @@ logger.info(tf.__version__)
 
 
 def create_dataset(
-    input_files, max_seq_len, batch_size, is_training: bool = True,
+    input_files, 
+    n_ctx,
+    max_seq_len, 
+    batch_size, is_training: bool = True,
 ):
     AUTO = tf.data.experimental.AUTOTUNE
     name_to_features = {
-        "input_ids": tf.io.FixedLenFeature([max_seq_len + 1], tf.int64),
+        "input_ids": tf.io.FixedLenFeature([n_ctx + 1], tf.int64),
     }
 
     def parse_tfrecord(example):
@@ -41,7 +44,7 @@ def create_dataset(
                 t = tf.cast(t, tf.int32)
             example[name] = t
 
-        input_ids = example["input_ids"]
+        input_ids = example["input_ids"][:max_seq_len + 1]
 
         return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
 
@@ -79,7 +82,7 @@ def main(config):
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
             "tpu-quickstart"
         )  # TPU detection
-        print("Running on TPU ", tpu.cluster_spec().as_dict()["worker"])
+        print("[INFO] Running on TPU ", tpu.cluster_spec().as_dict()["worker"])
 
         tf.config.experimental_connect_to_cluster(tpu)
         tf.tpu.experimental.initialize_tpu_system(tpu)
@@ -87,8 +90,8 @@ def main(config):
     except ValueError:
         raise BaseException("ERROR: Not connected to a TPU runtime;")
 
-    logger.info(
-        "Running with TPUStrategy on TPU {} with {} cores ".format(
+    print(
+        "[INFO] Running with TPUStrategy on TPU {} with {} cores ".format(
             tpu.cluster_spec().as_dict()["worker"], tpu_strategy.num_replicas_in_sync
         )
     )
@@ -98,12 +101,14 @@ def main(config):
 
     train_dataset = create_dataset(
             train_fns,
-            max_seq_len=params.model_params.n_ctx,
+            n_ctx=params.model_params.n_ctx,
+            max_seq_len=params.train.max_seq_len,
             batch_size=batch_size,
             is_training=True,
         )
     valid_dataset = create_dataset(
-        validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
+        validation_fns, n_ctx=params.model_params.n_ctx,
+            max_seq_len=params.train.max_seq_len,, batch_size=batch_size
     )
 
     # creating the model in the TPUStrategy scope means we will train the model on the TPU
