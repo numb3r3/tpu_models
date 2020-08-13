@@ -38,7 +38,7 @@ train:
     warmup_rate: 0.1
     patience: 3
 
-    checkpoint_intervals: 1000
+    checkpoint_intervals: 10
 
 
 pred:

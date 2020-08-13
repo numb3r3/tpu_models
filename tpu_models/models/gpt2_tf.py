@@ -85,7 +85,7 @@ def train(
 
     learning_rate = params.train.learning_rate
     steps_per_epoch = params.train.steps_per_epoch
-    num_total_steps = params.train.epochs * steps_per_epoch
+    num_total_steps = params.train.num_epochs * steps_per_epoch
     warmup_steps = params.train.warmup_rate * steps_per_epoch
 
     # Setup the optimizer and the learning rate scheduler.
