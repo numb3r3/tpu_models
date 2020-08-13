@@ -22,10 +22,14 @@ class ConfigTrain(BaseModel):
     seed: int
     num_epochs: int
     batch_size: int
+    steps_per_epoch: int
     learning_rate: float
     max_grad_norm: float
+    weight_decay: float
     warmup_rate: float
     patience: float
+
+    checkpoint_intervals: int
 
 
 class ConfigPred(BaseModel):
@@ -42,6 +46,7 @@ class ConfigModelParams(BaseModel):
     n_layer: int
     n_head: int
     n_ctx: int
+    vocab_size: int
 
 
 class Config(BaseModel):

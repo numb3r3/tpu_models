@@ -3,9 +3,14 @@ import os
 import tensorflow as tf
 import tensorflow_addons as tfa
 import transformers
+from transformers.optimization_tf import create_optimizer
 from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
+from ..optimizers_tf import AdafactorOptimizer
+
+logger = tf.get_logger()
+logger.info(tf.__version__)
 
 
 def init_model(vocab_size, params):
@@ -22,15 +27,18 @@ def init_model(vocab_size, params):
 
 
 def load_or_init_model(pretrained_model_dir, vocab_size, params):
+    global_step = 0
     # Train model
     if pretrained_model_dir:
-        print(f"Load model from {pretrained_model_dir}")
+        logger.info(f"Load model from {pretrained_model_dir}")
+        global_step = int(args.checkpoint.split("-")[-1].split("/")[0])
+        print(f"Starting from global step {global_step}")
         model = transformers.TFGPT2LMHeadModel.from_pretrained(pretrained_model_dir)
     else:
-        print(f"Initialize model with parameters: {params}")
+        logger.info(f"Initialize model with parameters: {params}")
         model = init_model(vocab_size, params)
 
-    return model
+    return model, global_step
 
 
 def cross_entropy_loss_with_padding(num_labels, pad_token_id):
@@ -59,39 +67,42 @@ def cross_entropy_loss_with_padding(num_labels, pad_token_id):
 def train(
     params,
     model,
-    tokenizer,
     train_dataset,
     valid_dataset,
-    total_steps=10000,
+    vocab_size,
+    pad_token_id=0,
+    global_step_init=0,
     run_eagerly=False,
 ):
     # Prepare model directory and path
     os.makedirs(params.output.model_dir, exist_ok=True)
 
-    # Compile model
     # Set from_logits=True because TFGPT2LMHeadModel returns the logits (before Softmax)
     # loss = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     loss = cross_entropy_loss_with_padding(
-        num_labels=len(tokenizer), pad_token_id=tokenizer.pad_token_id,
+        num_labels=vocab_size, pad_token_id=pad_token_id,
     )
 
-    # Create optimizer
-    # total_steps = len(train_dataset) * params.train.num_epochs
-    optimizer = tf.keras.optimizers.Adam(
-        lr=params.train.learning_rate,
-        beta_1=0.9,
-        beta_2=0.999,
-        epsilon=1e-08,  # default is 1e-07
-        # clipnorm=params.train.max_grad_norm,  # cilipping gradient by L2 norm
+    learning_rate = params.train.learning_rate
+    steps_per_epoch = params.train.steps_per_epoch
+    num_total_steps = params.train.epochs * steps_per_epoch
+    warmup_steps = params.train.warmup_rate * steps_per_epoch
+
+    # Setup the optimizer and the learning rate scheduler.
+    optimizer, lr_scheduler = create_optimizer(
+        learning_rate,
+        num_training_steps,
+        warmup_steps,
+        adam_beta1=0.9,
+        adam_beta2=0.999,
+        adam_epsilon=1e-8,
+        weight_decay_rate=params.train.weight_decay,
     )
 
-    # optimizer = tfa.optimizers.RectifiedAdam(
-    #         lr=params.train.learning_rate,
-    #         total_steps=total_steps,
-    #         warmup_proportion=0.1,
-    #         min_lr=1e-6,
-    #     )
+    # optimizer = AdafactorOptimizer(
+    #             learning_rate=learning_rate)
 
+    # Compile model
     model.compile(
         optimizer=optimizer,
         loss=[loss, *[None] * model.config.n_layer],
@@ -113,7 +124,12 @@ def train(
             monitor="val_loss",
             save_best_only=True,
         ),
-        TransformersCheckpoint(model=model, save_dir=params.output.model_dir),
+        TransformersCheckpoint(
+            model=model,
+            save_dir=params.output.model_dir,
+            global_step_init=global_step_init,
+            intervals=params.train.checkpoint_intervals,
+        ),
         tf.keras.callbacks.TensorBoard(
             log_dir=params.output.tensorboard_dir,
             update_freq="batch",

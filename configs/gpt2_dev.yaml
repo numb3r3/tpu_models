@@ -1,10 +1,10 @@
 # Path of input and output resources
 input:
-    train_file: gs://pretrained_dataset/clue_datasets/*.tfrec
+    train_file: gs://pretrained_dataset/clue_datasets/train_data/*.tfrec
     # train_file: train.txt
-    valid_file: eval.txt
+    valid_file: gs://pretrained_dataset/clue_datasets/valid_data/*.tfrec
     # tokenizer_file: gs://zh_clue_data/models
-    tokenizer_file: bert-base-chinese
+    tokenizer_file: bert-base-chinese-unk
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
     pretrained_model_dir: null
@@ -27,14 +27,14 @@ model_params:
 train:
     block_size: 512
     seed: 1234
-
+    
     num_epochs: 10
     batch_size: 128
 
-    learning_rate: 0.00005
+    learning_rate: 5e-5
     weight_decay: 0.01
     max_grad_norm: 1.0
-    steps_per_epoch: 10000
+    steps_per_epoch: 100
     warmup_rate: 0.1
     patience: 3
 
