@@ -137,8 +137,7 @@ def train(
         ),
         WandbCallback(),
         tf.keras.callbacks.TensorBoard(
-            #log_dir=params.output.tensorboard_dir,
-            log_dir=wandb.run.dir,
+            log_dir=params.output.tensorboard_dir,
             write_graph=False,
             update_freq=100,
             # To automatically refresh Tensorboard , set profile_batch=0
