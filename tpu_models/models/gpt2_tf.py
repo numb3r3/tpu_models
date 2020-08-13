@@ -91,7 +91,7 @@ def train(
     # Setup the optimizer and the learning rate scheduler.
     optimizer, lr_scheduler = create_optimizer(
         learning_rate,
-        num_training_steps,
+        num_total_steps,
         warmup_steps,
         adam_beta1=0.9,
         adam_beta2=0.999,
