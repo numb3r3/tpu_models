@@ -27,7 +27,7 @@ model_params:
 train:
     block_size: 512
     seed: 1234
-    
+
     num_epochs: 10
     batch_size: 128
 

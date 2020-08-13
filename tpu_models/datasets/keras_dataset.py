@@ -1,6 +1,7 @@
+import math
 
 import tensorflow as tf
-import math
+
 
 class Dataset(tf.keras.utils.Sequence):
     def __init__(self, tokenizer, texts, block_size, batch_size):

@@ -3,11 +3,10 @@ import os
 import tensorflow as tf
 import transformers
 from transformers import optimization_tf
-
 from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
-# from ..optimizers_tf import AdafactorOptimizer
+from ..optimizers_tf import AdafactorOptimizer, WarmUpLinearDecayScheduler
 
 logger = tf.get_logger()
 logger.info(tf.__version__)
@@ -88,19 +87,18 @@ def train(
     num_train_steps = params.train.num_epochs * steps_per_epoch
     num_warmup_steps = params.train.warmup_rate * steps_per_epoch
 
-    # Setup the optimizer and the learning rate scheduler.
-    optimizer, lr_scheduler = optimization_tf.create_optimizer(
-        learning_rate,
-        num_train_steps,
-        num_warmup_steps,
-        # adam_beta1=0.9,
-        # adam_beta2=0.999,
-        # adam_epsilon=1e-8,
-        weight_decay_rate=params.train.weight_decay_rate,
-    )
+    # # Setup the optimizer and the learning rate scheduler.
+    # optimizer, lr_scheduler = optimization_tf.create_optimizer(
+    #     learning_rate,
+    #     num_train_steps,
+    #     num_warmup_steps,
+    #     # adam_beta1=0.9,
+    #     # adam_beta2=0.999,
+    #     # adam_epsilon=1e-8,
+    #     weight_decay_rate=params.train.weight_decay_rate,
+    # )
 
-    # optimizer = AdafactorOptimizer(
-    #             learning_rate=learning_rate)
+    optimizer = AdafactorOptimizer(learning_rate=learning_rate)
 
     # Compile model
     model.compile(
@@ -136,6 +134,12 @@ def train(
             # To automatically refresh Tensorboard , set profile_batch=0
             # See more details here https://github.com/tensorflow/tensorboard/issues/2412
             profile_batch=0,
+        ),
+        WarmUpLinearDecayScheduler(
+            learning_rate_base=learning_rate,
+            total_steps=num_train_steps,
+            warmup_steps=num_warmup_steps,
+            global_step_init=global_step_init,
         ),
         # WarmupScheduler(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
