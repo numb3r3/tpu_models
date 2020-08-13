@@ -23,10 +23,7 @@ logger.info(tf.__version__)
 
 
 def create_dataset(
-    input_files, 
-    n_ctx,
-    max_seq_len, 
-    batch_size, is_training: bool = True,
+    input_files, n_ctx, max_seq_len, batch_size, is_training: bool = True,
 ):
     AUTO = tf.data.experimental.AUTOTUNE
     name_to_features = {
@@ -44,7 +41,7 @@ def create_dataset(
                 t = tf.cast(t, tf.int32)
             example[name] = t
 
-        input_ids = example["input_ids"][:max_seq_len + 1]
+        input_ids = example["input_ids"][: max_seq_len + 1]
 
         return {"input_ids": input_ids[:-1], "label": input_ids[1:]}
 
@@ -72,12 +69,10 @@ def main(config):
 
     # set_seed(params.train.seed)
 
-    
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
     train_fns = tf.io.gfile.glob(params.input.train_file)
     validation_fns = tf.io.gfile.glob(params.input.valid_file)[:2]
 
-    
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
             "tpu-quickstart"
@@ -100,20 +95,22 @@ def main(config):
     vocab_size = params.model_params.vocab_size
 
     train_dataset = create_dataset(
-            train_fns,
-            n_ctx=params.model_params.n_ctx,
-            max_seq_len=params.train.max_seq_len,
-            batch_size=batch_size,
-            is_training=True,
-        )
+        train_fns,
+        n_ctx=params.model_params.n_ctx,
+        max_seq_len=params.train.max_seq_len,
+        batch_size=batch_size,
+        is_training=True,
+    )
     valid_dataset = create_dataset(
-        validation_fns, n_ctx=params.model_params.n_ctx,
-            max_seq_len=params.train.max_seq_len,, batch_size=batch_size
+        validation_fns,
+        n_ctx=params.model_params.n_ctx,
+        max_seq_len=params.train.max_seq_len,
+        batch_size=batch_size,
     )
 
     # creating the model in the TPUStrategy scope means we will train the model on the TPU
-    with tpu_strategy.scope():  
-        
+    with tpu_strategy.scope():
+
         model, global_step_init = load_or_init_model(
             pretrained_model_dir=params.input.pretrained_model_dir,
             vocab_size=vocab_size,
