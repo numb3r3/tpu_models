@@ -93,9 +93,9 @@ def train(
         learning_rate,
         num_train_steps,
         num_warmup_steps,
-        adam_beta1=0.9,
-        adam_beta2=0.999,
-        adam_epsilon=1e-8,
+        # adam_beta1=0.9,
+        # adam_beta2=0.999,
+        # adam_epsilon=1e-8,
         weight_decay_rate=params.train.weight_decay_rate,
     )
 
