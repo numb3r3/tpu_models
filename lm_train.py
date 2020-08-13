@@ -69,22 +69,12 @@ def main(config):
 
     # set_seed(params.train.seed)
 
-    batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
-    vocab_size = params.model_params.vocab_size
-
+    
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
     train_fns = tf.io.gfile.glob(params.input.train_file)
     validation_fns = tf.io.gfile.glob(params.input.valid_file)
 
-    train_dataset = create_dataset(
-            train_fns,
-            max_seq_len=params.model_params.n_ctx,
-            batch_size=batch_size,
-            is_training=True,
-        )
-    valid_dataset = create_dataset(
-        validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
-    )
+    
 
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
@@ -102,6 +92,19 @@ def main(config):
         "Running with TPUStrategy on TPU {} with {} cores ".format(
             tpu.cluster_spec().as_dict()["worker"], tpu_strategy.num_replicas_in_sync
         )
+    )
+
+    batch_size = params.train.batch_size * tpu_strategy.num_replicas_in_sync
+    vocab_size = params.model_params.vocab_size
+
+    train_dataset = create_dataset(
+            train_fns,
+            max_seq_len=params.model_params.n_ctx,
+            batch_size=batch_size,
+            is_training=True,
+        )
+    valid_dataset = create_dataset(
+        validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
     )
 
     
