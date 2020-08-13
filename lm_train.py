@@ -1,7 +1,7 @@
 import math
+import random
 
 import numpy as np
-import random
 import tensorflow as tf
 import transformers
 import wandb
@@ -18,9 +18,9 @@ logger = tf.get_logger()
 logger.info(tf.__version__)
 
 
-# # Initialize a new W&B run – You can change your project name here.
-# # For more config options, see https://docs.wandb.com/docs/init.html
-# wandb.init(project="tpu_gpt2", sync_tensorboard=True)
+# Initialize a new W&B run – You can change your project name here.
+# For more config options, see https://docs.wandb.com/docs/init.html
+wandb.init(project="tpu_gpt2", sync_tensorboard=True)
 
 
 def create_dataset(
@@ -73,8 +73,8 @@ def main(config):
     # set_seed(params.train.seed)
 
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
-    train_fns = tf.io.gfile.glob(params.input.train_file)
-    validation_fns = tf.io.gfile.glob(params.input.valid_file)[:2]
+    train_fns = tf.io.gfile.glob(params.input.train_file)[:-2]
+    validation_fns = tf.io.gfile.glob(params.input.valid_file)[-2:]
 
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(

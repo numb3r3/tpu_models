@@ -144,7 +144,7 @@ def train(
         # WarmupScheduler(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
         # ),
-        # WandbCallback(),
+        WandbCallback(),
     ]
 
     # Train model
