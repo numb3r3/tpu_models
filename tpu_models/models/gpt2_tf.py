@@ -112,6 +112,12 @@ def train(
     )
 
     callbacks_list = [
+        WarmUpLinearDecayScheduler(
+            learning_rate_base=learning_rate,
+            total_steps=num_train_steps,
+            warmup_steps=num_warmup_steps,
+            global_step_init=global_step_init,
+        ),
         tf.keras.callbacks.EarlyStopping(
             monitor="val_loss",
             patience=params.train.patience,
@@ -135,16 +141,10 @@ def train(
             # See more details here https://github.com/tensorflow/tensorboard/issues/2412
             profile_batch=0,
         ),
-        WarmUpLinearDecayScheduler(
-            learning_rate_base=learning_rate,
-            total_steps=num_train_steps,
-            warmup_steps=num_warmup_steps,
-            global_step_init=global_step_init,
-        ),
         # WarmupScheduler(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
         # ),
-        # WandbCallback(),
+        WandbCallback(),
     ]
 
     # Train model

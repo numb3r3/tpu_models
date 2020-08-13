@@ -17,9 +17,9 @@ logger = tf.get_logger()
 logger.info(tf.__version__)
 
 
-# # Initialize a new W&B run – You can change your project name here.
-# # For more config options, see https://docs.wandb.com/docs/init.html
-# wandb.init(project="tpu_gpt2", sync_tensorboard=True)
+# Initialize a new W&B run – You can change your project name here.
+# For more config options, see https://docs.wandb.com/docs/init.html
+wandb.init(project="tpu_gpt2", sync_tensorboard=True)
 
 
 def create_dataset(
@@ -73,6 +73,16 @@ def main(config):
     train_fns = tf.io.gfile.glob(params.input.train_file)
     validation_fns = tf.io.gfile.glob(params.input.valid_file)
 
+    train_dataset = create_dataset(
+            train_fns,
+            max_seq_len=params.model_params.n_ctx,
+            batch_size=batch_size,
+            is_training=True,
+        )
+    valid_dataset = create_dataset(
+        validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
+    )
+
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
             "tpu-quickstart"
@@ -96,15 +106,7 @@ def main(config):
 
     # Train model
     with tpu_strategy.scope():  # creating the model in the TPUStrategy scope means we will train the model on the TPU
-        train_dataset = create_dataset(
-            train_fns,
-            max_seq_len=params.model_params.n_ctx,
-            batch_size=batch_size,
-            is_training=True,
-        )
-        valid_dataset = create_dataset(
-            validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
-        )
+        
 
         model, global_step_init = load_or_init_model(
             pretrained_model_dir=params.input.pretrained_model_dir,
@@ -112,16 +114,16 @@ def main(config):
             params=params.model_params,
         )
 
-        val_best_model = train(
-            params,
-            model,
-            train_dataset,
-            valid_dataset,
-            vocab_size,
-            pad_token_id=0,
-            global_step_init=global_step_init,
-        )
-        val_best_model.summary()
+    val_best_model = train(
+        params,
+        model,
+        train_dataset,
+        valid_dataset,
+        vocab_size,
+        pad_token_id=0,
+        global_step_init=global_step_init,
+    )
+    val_best_model.summary()
 
     # # Evaluate best model with validation set
     # val_best_model.evaluate(valid_dataset)
