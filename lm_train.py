@@ -107,28 +107,25 @@ def main(config):
         validation_fns, max_seq_len=params.model_params.n_ctx, batch_size=batch_size
     )
 
-    
-
-    # Train model
-    with tpu_strategy.scope():  # creating the model in the TPUStrategy scope means we will train the model on the TPU
+    # creating the model in the TPUStrategy scope means we will train the model on the TPU
+    with tpu_strategy.scope():  
         
-
         model, global_step_init = load_or_init_model(
             pretrained_model_dir=params.input.pretrained_model_dir,
             vocab_size=vocab_size,
             params=params.model_params,
         )
 
-    val_best_model = train(
-        params,
-        model,
-        train_dataset,
-        valid_dataset,
-        vocab_size,
-        pad_token_id=0,
-        global_step_init=global_step_init,
-    )
-    val_best_model.summary()
+        val_best_model = train(
+            params,
+            model,
+            train_dataset,
+            valid_dataset,
+            vocab_size,
+            pad_token_id=0,
+            global_step_init=global_step_init,
+        )
+        val_best_model.summary()
 
     # # Evaluate best model with validation set
     # val_best_model.evaluate(valid_dataset)
