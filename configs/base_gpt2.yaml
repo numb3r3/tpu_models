@@ -4,15 +4,15 @@ input:
     # train_file: train.txt
     valid_file: gs://zh_clue_data/clue_datasets/train_data/*.tfrec
     # tokenizer_file: gs://zh_clue_data/models
-    tokenizer_file: bert-base-chinese
+    tokenizer_file: bert-base-chinese-xxx
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
     pretrained_model_dir: null
 output:
-    model_dir:       gs://zh_clue_data/models/output/model
-    tokenizer_file:  gs://zh_clue_data/models/output/model/tokenizer.json
-    tensorboard_dir: gs://zh_clue_data/models/output/tensorboard
-    checkpoint_path: gs://zh_clue_data/models/output/ckpt.h5
+    model_dir:       gs://zh_clue_data/models/gpt2/output/model
+    tokenizer_file:  gs://zh_clue_data/models/gpt2/output/model/tokenizer.json
+    tensorboard_dir: gs://zh_clue_data/models/gpt2/output/tensorboard
+    checkpoint_path: gs://zh_clue_data/models/gpt2/output/ckpt.h5
 
 
 # model_params is used when pretrained_model_dir is set to null
@@ -32,14 +32,14 @@ train:
     batch_size: 168
     max_seq_len: 128
 
-    learning_rate: 0.00005
+    learning_rate: 5e-5
     weight_decay_rate: 0.01
     max_grad_norm: 1.0
-    steps_per_epoch: 10000
-    warmup_rate: 0.1
+    steps_per_epoch: 1000000
+    warmup_rate: 0.001
     patience: 3
 
-    checkpoint_intervals: 1000
+    checkpoint_intervals: 5000
 
 
 pred:
