@@ -3,8 +3,8 @@ import os
 import tensorflow as tf
 import transformers
 from transformers import optimization_tf
-import wandb
-from wandb.keras import WandbCallback
+# import wandb
+# from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
 from ..optimizers_tf import AdafactorOptimizer, WarmUpLinearDecayScheduler
@@ -137,7 +137,7 @@ def train(
             global_step_init=global_step_init,
             intervals=params.train.checkpoint_intervals,
         ),
-        WandbCallback(),
+        # WandbCallback(),
         tf.keras.callbacks.TensorBoard(
             log_dir=params.output.tensorboard_dir,
             write_graph=False,

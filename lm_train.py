@@ -4,7 +4,7 @@ import random
 import numpy as np
 import tensorflow as tf
 import transformers
-import wandb
+# import wandb
 
 from tpu_models import tpu_utils
 from tpu_models.config import Config
@@ -18,9 +18,9 @@ logger = tf.get_logger()
 logger.info(tf.__version__)
 
 
-# Initialize a new W&B run – You can change your project name here.
-# For more config options, see https://docs.wandb.com/docs/init.html
-wandb.init(project="tpu_gpt2", sync_tensorboard=True)
+# # Initialize a new W&B run – You can change your project name here.
+# # For more config options, see https://docs.wandb.com/docs/init.html
+# wandb.init(project="tpu_gpt2", sync_tensorboard=True)
 
 
 def create_dataset(
