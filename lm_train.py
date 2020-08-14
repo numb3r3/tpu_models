@@ -73,8 +73,8 @@ def main(config):
     # set_seed(params.train.seed)
 
     # # gcs_pattern = 'gs://flowers-public/tfrecords-jpeg-331x331/*.tfrec'
-    train_fns = tf.io.gfile.glob(params.input.train_file)[:-2]
-    validation_fns = tf.io.gfile.glob(params.input.valid_file)[-2:]
+    train_fns = tf.io.gfile.glob(params.input.train_file)[:-10]
+    validation_fns = tf.io.gfile.glob(params.input.valid_file)[-10:]
 
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
