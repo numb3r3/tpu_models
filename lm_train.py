@@ -84,10 +84,10 @@ def main(config, tpu_name=None):
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
             tpu_name or "tpu-quickstart"
         )  # TPU detection
-        print(
-            f"[INFO] Running on TPU ({tpu_name})",
-            tpu.cluster_spec().as_dict()["worker"],
-        )
+        # print(
+        #     "[INFO] Running on TPU",
+        #     tpu.cluster_spec().as_dict()["worker"],
+        # )
 
         tf.config.experimental_connect_to_cluster(tpu)
         tf.tpu.experimental.initialize_tpu_system(tpu)

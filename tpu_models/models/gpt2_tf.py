@@ -111,7 +111,7 @@ def train(
     latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
     if latest_checkpoint:
         checkpoint.restore(latest_checkpoint)
-        logging.info("Loaded checkpoint %s", latest_checkpoint)
+        print("[INFO] Loaded checkpoint %s", latest_checkpoint)
         current_step = optimizer.iterations.numpy()
 
     # Compile model
@@ -125,13 +125,13 @@ def train(
         run_eagerly=run_eagerly,
     )
 
-    # Create a callback that saves the model's weights
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=params.output.checkpoint_path,
-        save_weights_only=False,
-        monitor="val_loss",
-        save_freq=1000,
-    )
+    # # Create a callback that saves the model's weights
+    # cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    #     filepath=params.output.checkpoint_path,
+    #     save_weights_only=False,
+    #     monitor="val_loss",
+    #     save_freq=1000,
+    # )
 
     callbacks_list = [
         WarmUpLinearDecayScheduler(
@@ -145,10 +145,16 @@ def train(
             patience=params.train.patience,
             restore_best_weights=True,
         ),
+        # tf.keras.callbacks.ModelCheckpoint(
+        #     filepath=params.output.checkpoint_path,
+        #     monitor="val_loss",
+        #     save_best_only=True,
+        # ),
         tf.keras.callbacks.ModelCheckpoint(
             filepath=params.output.checkpoint_path,
+            save_weights_only=False,
             monitor="val_loss",
-            save_best_only=True,
+            save_freq=1000,
         ),
         TransformersCheckpoint(
             model=model,
