@@ -106,13 +106,13 @@ def train(
     # optimizer = AdafactorOptimizer(
     #             beta1=.0, multiply_by_parameter_scale=True)
 
-    # current_step = 0
-    # checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
-    # latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
-    # if latest_checkpoint:
-    #     checkpoint.restore(latest_checkpoint)
-    #     print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
-    #     current_step = optimizer.iterations.numpy()
+    current_step = 0
+    checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
+    latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
+    if latest_checkpoint:
+        checkpoint.restore(latest_checkpoint)
+        print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
+        current_step = optimizer.iterations.numpy()
 
     # Compile model
     model.compile(
