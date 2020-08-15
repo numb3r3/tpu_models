@@ -128,7 +128,7 @@ def main(config):
             valid_dataset,
             vocab_size,
             pad_token_id=0,
-            global_step_init=global_step_init,
+            global_step_init=global_step_init+1,
         )
         val_best_model.summary()
 
