@@ -420,7 +420,7 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         global_step_init=0,
         warmup_learning_rate=0.0,
         warmup_steps=0,
-        end_learning_rate=1e-6,
+        end_learning_rate=1e-7,
         hold_base_rate_steps=0,
         verbose=0,
     ):
