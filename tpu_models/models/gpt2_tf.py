@@ -99,9 +99,10 @@ def train(
     #     weight_decay_rate=params.train.weight_decay_rate,
     # )
 
-    # optimizer = AdafactorOptimizer(learning_rate=learning_rate)
-    optimizer = AdafactorOptimizer(
-                beta1=.0, multiply_by_parameter_scale=True)
+    optimizer = AdafactorOptimizer(learning_rate=learning_rate)
+
+    # optimizer = AdafactorOptimizer(
+    #             beta1=.0, multiply_by_parameter_scale=True)
 
     # Compile model
     model.compile(
@@ -115,12 +116,12 @@ def train(
     )
 
     callbacks_list = [
-        # WarmUpLinearDecayScheduler(
-        #     learning_rate_base=learning_rate,
-        #     total_steps=num_train_steps,
-        #     warmup_steps=num_warmup_steps,
-        #     global_step_init=global_step_init,
-        # ),
+        WarmUpLinearDecayScheduler(
+            learning_rate_base=learning_rate,
+            total_steps=num_train_steps,
+            warmup_steps=num_warmup_steps,
+            global_step_init=global_step_init,
+        ),
         tf.keras.callbacks.EarlyStopping(
             monitor="val_loss",
             patience=params.train.patience,

@@ -35,7 +35,7 @@ train:
     learning_rate: 5e-5
     weight_decay_rate: 0.01
     max_grad_norm: 1.0
-    steps_per_epoch: 1000000
+    steps_per_epoch: 10000000
     warmup_rate: 0.001
     patience: 3
 

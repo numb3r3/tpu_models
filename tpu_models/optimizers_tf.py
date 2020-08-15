@@ -420,6 +420,7 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         global_step_init=0,
         warmup_learning_rate=0.0,
         warmup_steps=0,
+        end_learning_rate=1e-5,
         hold_base_rate_steps=0,
         verbose=0,
     ):
@@ -447,10 +448,12 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         self.verbose = verbose
         self.learning_rates = []
 
+        assert learning_rate_base > end_learning_rate
+
         learning_rate_fn = tf.keras.optimizers.schedules.PolynomialDecay(
             initial_learning_rate=learning_rate_base,
             decay_steps=total_steps,
-            end_learning_rate=0.0,
+            end_learning_rate=end_learning_rate,
         )
 
         self.sched = WarmUp(
