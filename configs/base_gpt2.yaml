@@ -7,7 +7,7 @@ input:
     tokenizer_file: bert-base-chinese-xxx
     # If pretrained_model_dir is set except for null,
     # the model is loaded from here and `model_param` section is ignored
-    pretrained_model_dir: gs://zh_clue_data/models/gpt2/output/model/checkpoint-step-139999
+    pretrained_model_dir: gs://zh_clue_data/models/gpt2/output/model/checkpoint-step-149999
 output:
     model_dir:       gs://zh_clue_data/models/gpt2/output/model
     tokenizer_file:  gs://zh_clue_data/models/gpt2/output/model/tokenizer.json
