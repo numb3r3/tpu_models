@@ -111,7 +111,7 @@ def train(
     latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
     if latest_checkpoint:
         checkpoint.restore(latest_checkpoint)
-        print("[INFO] Loaded checkpoint %s", latest_checkpoint)
+        print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
         current_step = optimizer.iterations.numpy()
 
     # Compile model
