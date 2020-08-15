@@ -119,6 +119,7 @@ def main(config):
             vocab_size=vocab_size,
             params=params.model_params,
         )
+        print(f"[INFO] starting from global step {global_step_init}")
 
         val_best_model = train(
             params,

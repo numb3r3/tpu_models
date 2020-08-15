@@ -373,6 +373,7 @@ class WarmUp(tf.keras.optimizers.schedules.LearningRateSchedule):
         initial_learning_rate,
         decay_schedule_fn,
         warmup_steps,
+        global_step_init=0,
         power=1.0,
         name=None,
     ):
@@ -382,12 +383,15 @@ class WarmUp(tf.keras.optimizers.schedules.LearningRateSchedule):
         self.power = power
         self.decay_schedule_fn = decay_schedule_fn
         self.name = name
+        self.global_step_init = global_step_init
 
     def __call__(self, step):
         with tf.name_scope(self.name or "WarmUp") as name:
             # Implements polynomial warmup. i.e., if global_step < warmup_steps, the
             # learning rate will be `global_step/num_warmup_steps * init_lr`.
-            global_step_float = tf.cast(step, tf.float32)
+
+            global_step_float = tf.cast(step - self.global_step_init, tf.float32)
+
             warmup_steps_float = tf.cast(self.warmup_steps, tf.float32)
             warmup_percent_done = global_step_float / warmup_steps_float
             warmup_learning_rate = self.initial_learning_rate * tf.math.pow(
@@ -460,7 +464,7 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         )
 
         self.sched = WarmUp(
-            learning_rate_base, learning_rate_fn, warmup_steps=warmup_steps
+            learning_rate_base, learning_rate_fn, warmup_steps=warmup_steps, global_step_init=global_step_init
         )
 
     def on_batch_end(self, batch, logs=None):
