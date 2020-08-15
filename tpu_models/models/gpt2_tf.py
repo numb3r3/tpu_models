@@ -3,11 +3,13 @@ import os
 import tensorflow as tf
 import transformers
 from transformers import optimization_tf
-# import wandb
-# from wandb.keras import WandbCallback
 
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
 from ..optimizers_tf import AdafactorOptimizer, WarmUpLinearDecayScheduler
+
+# import wandb
+# from wandb.keras import WandbCallback
+
 
 logger = tf.get_logger()
 logger.info(tf.__version__)
@@ -104,6 +106,14 @@ def train(
     # optimizer = AdafactorOptimizer(
     #             beta1=.0, multiply_by_parameter_scale=True)
 
+    current_step = 0
+    checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
+    latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
+    if latest_checkpoint:
+        checkpoint.restore(latest_checkpoint)
+        logging.info("Loaded checkpoint %s", latest_checkpoint)
+        current_step = optimizer.iterations.numpy()
+
     # Compile model
     model.compile(
         optimizer=optimizer,
@@ -113,6 +123,14 @@ def train(
         #     keras.metrics.SparseCategoricalAccuracy(),
         # ],
         run_eagerly=run_eagerly,
+    )
+
+    # Create a callback that saves the model's weights
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=params.output.checkpoint_path,
+        save_weights_only=False,
+        monitor="val_loss",
+        save_freq=1000,
     )
 
     callbacks_list = [
@@ -150,7 +168,6 @@ def train(
         # WarmupScheduler(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
         # ),
-        
     ]
 
     # Train model

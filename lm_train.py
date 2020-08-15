@@ -4,12 +4,14 @@ import random
 import numpy as np
 import tensorflow as tf
 import transformers
-# import wandb
 
 from tpu_models import tpu_utils
 from tpu_models.config import Config
 from tpu_models.models.gpt2_tf import load_or_init_model, train
 from tpu_models.utils import load_yaml, set_seed
+
+# import wandb
+
 
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
@@ -66,9 +68,11 @@ def create_dataset(
     )
 
 
-def main(config):
+def main(config, tpu_name=None):
     params = Config(**load_yaml(config))
     print(params)
+
+    run_eagerly = False
 
     # set_seed(params.train.seed)
 
@@ -78,9 +82,12 @@ def main(config):
 
     try:
         tpu = tf.distribute.cluster_resolver.TPUClusterResolver(
-            "tpu-quickstart"
+            tpu_name or "tpu-quickstart"
         )  # TPU detection
-        print("[INFO] Running on TPU ", tpu.cluster_spec().as_dict()["worker"])
+        print(
+            f"[INFO] Running on TPU ({tpu_name})",
+            tpu.cluster_spec().as_dict()["worker"],
+        )
 
         tf.config.experimental_connect_to_cluster(tpu)
         tf.tpu.experimental.initialize_tpu_system(tpu)
@@ -121,6 +128,13 @@ def main(config):
         )
         print(f"[INFO] starting from global step {global_step_init}")
 
+        if run_eagerly:
+            if isinstance(tpu_strategy, tf.distribute.experimental.TPUStrategy):
+                raise ValueError(
+                    "TPUStrategy should not run eagerly as it heavily relies on graph"
+                    " optimization for the distributed system."
+                )
+
         val_best_model = train(
             params,
             model,
@@ -128,7 +142,7 @@ def main(config):
             valid_dataset,
             vocab_size,
             pad_token_id=0,
-            global_step_init=global_step_init+1,
+            global_step_init=global_step_init + 1,
         )
         val_best_model.summary()
 

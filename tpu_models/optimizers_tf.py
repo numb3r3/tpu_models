@@ -421,11 +421,11 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         self,
         learning_rate_base,
         total_steps,
-        decay_steps = None,
+        decay_steps=None,
         global_step_init=0,
         warmup_learning_rate=0.0,
         warmup_steps=0,
-        end_learning_rate=1e-7,
+        end_learning_rate=1e-6,
         hold_base_rate_steps=0,
         verbose=0,
     ):
@@ -464,7 +464,10 @@ class WarmUpLinearDecayScheduler(keras.callbacks.Callback):
         )
 
         self.sched = WarmUp(
-            learning_rate_base, learning_rate_fn, warmup_steps=warmup_steps, global_step_init=global_step_init
+            learning_rate_base,
+            learning_rate_fn,
+            warmup_steps=warmup_steps,
+            global_step_init=global_step_init,
         )
 
     def on_batch_end(self, batch, logs=None):
