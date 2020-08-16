@@ -41,7 +41,7 @@ class TransformersCheckpoint(keras.callbacks.Callback):
         self._model = model
         self._save_dir = save_dir
         self.global_steps = global_step_init
-        self.model_save_intervals = intervals
+        self.model_save_intervals = model_save_intervals
         self.checkpoint_manager = checkpoint_manager
         self.checkpoint_intervals=checkpoint_intervals
 
@@ -56,7 +56,7 @@ class TransformersCheckpoint(keras.callbacks.Callback):
 
             self._model.save_pretrained(checkpoint_dir)
             print(f"[DEBUG] saving model at iteration {self.global_steps}")
-            
+
         if (self.global_steps + 1) % self.checkpoint_intervals == 0:
             ckpt_save_path = self.checkpoint_manager.save()
             print ('Saving checkpoint for steps {} at {}'.format(self.global_steps, ckpt_save_path))
