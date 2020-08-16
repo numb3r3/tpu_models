@@ -135,16 +135,16 @@ def main(config, tpu_name=None):
                     " optimization for the distributed system."
                 )
 
-        val_best_model = train(
-            params,
-            model,
-            train_dataset,
-            valid_dataset,
-            vocab_size,
-            pad_token_id=0,
-            global_step_init=global_step_init + 1,
-        )
-        val_best_model.summary()
+    val_best_model = train(
+        params,
+        model,
+        train_dataset,
+        valid_dataset,
+        vocab_size,
+        pad_token_id=0,
+        global_step_init=global_step_init + 1,
+    )
+    val_best_model.summary()
 
     # # Evaluate best model with validation set
     # val_best_model.evaluate(valid_dataset)
