@@ -12,7 +12,7 @@ output:
     model_dir:       gs://zh_clue_data/models/gpt2_v2/output/model
     tokenizer_file:  gs://zh_clue_data/models/gpt2_v2/output/model/tokenizer.json
     tensorboard_dir: gs://zh_clue_data/models/gpt2_v2/output/tensorboard
-    checkpoint_path: gs://zh_clue_data/models/gpt2_v2/output/ckpt.h5
+    checkpoint_path: gs://zh_clue_data/models/gpt2_v2/output/checkpoints
 
 
 # model_params is used when pretrained_model_dir is set to null

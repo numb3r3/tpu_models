@@ -113,6 +113,7 @@ def train(
         checkpoint.restore(latest_checkpoint)
         print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
         current_step = optimizer.iterations.numpy()
+    global_step_init = current_step
 
     # Compile model
     model.compile(
@@ -140,11 +141,11 @@ def train(
             warmup_steps=num_warmup_steps,
             global_step_init=global_step_init,
         ),
-        tf.keras.callbacks.EarlyStopping(
-            monitor="val_loss",
-            patience=params.train.patience,
-            restore_best_weights=True,
-        ),
+        # tf.keras.callbacks.EarlyStopping(
+        #     monitor="val_loss",
+        #     patience=params.train.patience,
+        #     restore_best_weights=True,
+        # ),
         # tf.keras.callbacks.ModelCheckpoint(
         #     filepath=params.output.checkpoint_path,
         #     monitor="val_loss",
@@ -184,10 +185,10 @@ def train(
         validation_data=valid_dataset,
     )
 
-    # Restore the best model and save it as pretrained model format
-    # If restore_best_weights=False, this process is required
-    model.load_weights(params.output.checkpoint_path)
-    model.save_pretrained(params.output.model_dir)
+    # # Restore the best model and save it as pretrained model format
+    # # If restore_best_weights=False, this process is required
+    # model.load_weights(params.output.checkpoint_path)
+    # model.save_pretrained(params.output.model_dir)
 
     # Save model with best performance
     return model
