@@ -1,0 +1,58 @@
+# Path of input and output resources
+input:
+    train_file: gs://zh_clue_data/clue_datasets/train_data/*.tfrec
+    # train_file: train.txt
+    valid_file: gs://zh_clue_data/clue_datasets/train_data/*.tfrec
+    # tokenizer_file: gs://zh_clue_data/models
+    tokenizer_file: bert-base-chinese-xxx
+    # If pretrained_model_dir is set except for null,
+    # the model is loaded from here and `model_param` section is ignored
+    pretrained_model_dir: null
+output:
+    model_dir:       gs://zh_clue_data/models/gpt2_v3/output/model
+    tokenizer_file:  gs://zh_clue_data/models/gpt2_v3/output/model/tokenizer.json
+    tensorboard_dir: gs://zh_clue_data/models/gpt2_v3/output/tensorboard
+    checkpoint_dir: gs://zh_clue_data/models/gpt2_v3/output/checkpoints
+
+    model_save_intervals: 5000
+    checkpoint_intervals: 1000
+
+
+# model_params is used when pretrained_model_dir is set to null
+model_params:
+    n_embd: 768
+    n_layer: 12
+    n_head: 12
+    n_ctx: 512
+
+    vocab_size: 21128
+
+train:
+    block_size: 512
+    seed: 1234
+
+    num_epochs: 10
+    batch_size: 168
+    max_seq_len: 128
+
+    learning_rate: 5e-5
+    weight_decay_rate: 0.01
+    max_grad_norm: 1.0
+    steps_per_epoch: 10000000
+    warmup_rate: 0.0001
+    patience: 3
+
+    # checkpoint_intervals: 5000
+
+
+pred:
+    # [Generation Config]
+    do_sample: True
+    seed: 1234
+    max_length: 100
+    top_k: 50
+    top_p: 0.9
+    bad_words:
+        - "[UNK]"
+        - "[PAD]"
+        - "[SEP]"

@@ -14,7 +14,10 @@ class ConfigOutput(BaseModel):
     model_dir: str
     tokenizer_file: str
     tensorboard_dir: str
-    checkpoint_path: str
+    checkpoint_dir: str
+
+    model_save_intervals: int
+    checkpoint_intervals: int
 
 
 class ConfigTrain(BaseModel):
@@ -30,7 +33,7 @@ class ConfigTrain(BaseModel):
     warmup_rate: float
     patience: float
 
-    checkpoint_intervals: int
+    
 
 
 class ConfigPred(BaseModel):

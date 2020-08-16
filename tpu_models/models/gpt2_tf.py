@@ -106,14 +106,25 @@ def train(
     # optimizer = AdafactorOptimizer(
     #             beta1=.0, multiply_by_parameter_scale=True)
 
+    ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
+
+    ckpt_manager = tf.train.CheckpointManager(ckpt, params.output.checkpoint_dir, max_to_keep=10)
+
     current_step = 0
-    checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
-    latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
-    if latest_checkpoint:
-        checkpoint.restore(latest_checkpoint)
-        print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
+    # if a checkpoint exists, restore the latest checkpoint.
+    if ckpt_manager.latest_checkpoint:
+        ckpt.restore(ckpt_manager.latest_checkpoint)
+        print("[INFO] Loaded latest checkpoint %s" % ckpt_manager.latest_checkpoint)
         current_step = optimizer.iterations.numpy()
     global_step_init = current_step
+    
+    # checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
+    # latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
+    # if latest_checkpoint:
+    #     checkpoint.restore(latest_checkpoint)
+    #     print("[INFO] Loaded checkpoint %s" % latest_checkpoint)
+    #     current_step = optimizer.iterations.numpy()
+    # global_step_init = current_step
 
     # Compile model
     model.compile(
@@ -151,17 +162,19 @@ def train(
         #     monitor="val_loss",
         #     save_best_only=True,
         # ),
-        tf.keras.callbacks.ModelCheckpoint(
-            filepath=params.output.checkpoint_path,
-            save_weights_only=False,
-            monitor="val_loss",
-            save_freq=1000,
-        ),
+        # tf.keras.callbacks.ModelCheckpoint(
+        #     filepath=params.output.checkpoint_path,
+        #     save_weights_only=False,
+        #     monitor="val_loss",
+        #     save_freq=1000,
+        # ),
         TransformersCheckpoint(
             model=model,
             save_dir=params.output.model_dir,
             global_step_init=global_step_init,
-            intervals=params.train.checkpoint_intervals,
+            model_save_intervals=params.output.model_save_intervals,
+            checkpoint_manager=ckpt_manager,
+            checkpoint_intervals=params.output.checkpoint_intervals,
         ),
         # WandbCallback(),
         tf.keras.callbacks.TensorBoard(
