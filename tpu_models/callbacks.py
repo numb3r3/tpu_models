@@ -32,10 +32,15 @@ class WarmupScheduler(keras.callbacks.Callback):
 
 
 class TransformersCheckpoint(keras.callbacks.Callback):
-    def __init__(self, model, save_dir, global_step_init=0, 
-            model_save_intervals=1000,
-            checkpoint_manager=None,
-            checkpoint_intervals=1000):
+    def __init__(
+        self,
+        model,
+        save_dir,
+        global_step_init=0,
+        model_save_intervals=1000,
+        checkpoint_manager=None,
+        checkpoint_intervals=1000,
+    ):
         super().__init__()
 
         self._model = model
@@ -43,7 +48,7 @@ class TransformersCheckpoint(keras.callbacks.Callback):
         self.global_steps = global_step_init
         self.model_save_intervals = model_save_intervals
         self.checkpoint_manager = checkpoint_manager
-        self.checkpoint_intervals=checkpoint_intervals
+        self.checkpoint_intervals = checkpoint_intervals
 
     def on_batch_end(self, batch, logs=None):
         if (self.global_steps + 1) % self.model_save_intervals == 0:
@@ -59,7 +64,11 @@ class TransformersCheckpoint(keras.callbacks.Callback):
 
         if (self.global_steps + 1) % self.checkpoint_intervals == 0:
             ckpt_save_path = self.checkpoint_manager.save()
-            print ('Saving checkpoint for steps {} at {}'.format(self.global_steps, ckpt_save_path))
+            print(
+                "Saving checkpoint for steps {} at {}".format(
+                    self.global_steps, ckpt_save_path
+                )
+            )
 
         self.global_steps += 1
 
