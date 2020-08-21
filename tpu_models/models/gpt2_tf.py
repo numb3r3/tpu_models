@@ -116,8 +116,10 @@ def train(
     # if a checkpoint exists, restore the latest checkpoint.
     if ckpt_manager.latest_checkpoint:
         ckpt.restore(ckpt_manager.latest_checkpoint)
-        print("[INFO] Loaded latest checkpoint %s" % ckpt_manager.latest_checkpoint)
         current_step = optimizer.iterations.numpy()
+        print("[INFO] Loaded latest checkpoint %s from step %d" % (ckpt_manager.latest_checkpoint, current_step))
+    
+    
     global_step_init = current_step
 
     # checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
