@@ -48,6 +48,8 @@ train:
     warmup_rate: 0.001
     patience: 3
 
+    multiply_by_parameter_scale: false
+
     # checkpoint_intervals: 5000
 
 
