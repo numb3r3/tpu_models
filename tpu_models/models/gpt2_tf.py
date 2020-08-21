@@ -4,6 +4,9 @@ import tensorflow as tf
 import transformers
 from transformers import optimization_tf
 
+import tensorflow_addons as tfa
+
+
 from ..callbacks import TransformersCheckpoint, WarmupScheduler
 from ..optimizers_tf import AdafactorOptimizer, WarmUpLinearDecayScheduler
 
@@ -102,11 +105,29 @@ def train(
     # )
 
     
-    if params.train.multiply_by_parameter_scale:
-        optimizer = AdafactorOptimizer(
-                    beta1=.0, multiply_by_parameter_scale=True)
-    else:
+    # if params.train.multiply_by_parameter_scale:
+    #     optimizer = AdafactorOptimizer(
+    #                 beta1=.0, multiply_by_parameter_scale=True)
+    # else:
+    #     optimizer = AdafactorOptimizer(learning_rate=learning_rate)
+
+    lr_scheduer = None
+    if params.train.optimizer == "Adafactor":
         optimizer = AdafactorOptimizer(learning_rate=learning_rate)
+        lr_scheduer = WarmUpLinearDecayScheduler(
+                learning_rate_base=learning_rate,
+                total_steps=num_train_steps,
+                warmup_steps=num_warmup_steps,
+                global_step_init=global_step_init,
+            )
+    elif params.train.optimizer == "RAdam":
+        radam = tfa.optimizers.RectifiedAdam(
+            lr=learning_rate,
+            total_steps=num_train_steps,
+            warmup_proportion=params.train.warmup_rate,
+            min_lr=1e-6,
+        )
+        optimizer = tfa.optimizers.Lookahead(radam, sync_period=6, slow_step_size=0.5)
 
     ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
 
@@ -151,12 +172,12 @@ def train(
     # )
 
     callbacks_list = [
-        WarmUpLinearDecayScheduler(
-            learning_rate_base=learning_rate,
-            total_steps=num_train_steps,
-            warmup_steps=num_warmup_steps,
-            global_step_init=global_step_init,
-        ),
+        # WarmUpLinearDecayScheduler(
+        #     learning_rate_base=learning_rate,
+        #     total_steps=num_train_steps,
+        #     warmup_steps=num_warmup_steps,
+        #     global_step_init=global_step_init,
+        # ),
         # tf.keras.callbacks.EarlyStopping(
         #     monitor="val_loss",
         #     patience=params.train.patience,
@@ -194,6 +215,9 @@ def train(
         #     total_steps * params.train.warmup_rate, params.train.learning_rate
         # ),
     ]
+
+    if lr_scheduer:
+        callbacks_list.append(lr_scheduer)
 
     # Train model
     model.fit(
