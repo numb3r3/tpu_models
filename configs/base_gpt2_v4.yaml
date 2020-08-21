@@ -32,7 +32,7 @@ train:
     seed: 1234
 
     num_epochs: 10
-    batch_size: 160
+    batch_size: 128
     max_seq_len: 128
 
     learning_rate: 5e-5
