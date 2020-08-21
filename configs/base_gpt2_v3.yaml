@@ -32,8 +32,12 @@ train:
     seed: 1234
 
     num_epochs: 10
-    batch_size: 168
-    max_seq_len: 128
+    # batch_size: 168
+    # max_seq_len: 128
+
+    batch_size: 84
+    max_seq_len: 256
+
 
     learning_rate: 5e-5
     weight_decay_rate: 0.01
