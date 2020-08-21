@@ -120,6 +120,14 @@ def train(
                 warmup_steps=num_warmup_steps,
                 global_step_init=global_step_init,
             )
+    elif params.train.optimizer == "AdamW":
+        optimizer = tfa.optimizers.AdamW(learning_rate=learning_rate, weight_decay=params.train.weight_decay_rate)
+        lr_scheduer = WarmUpLinearDecayScheduler(
+                learning_rate_base=learning_rate,
+                total_steps=num_train_steps,
+                warmup_steps=num_warmup_steps,
+                global_step_init=global_step_init,
+            )
     elif params.train.optimizer == "RAdam":
         radam = tfa.optimizers.RectifiedAdam(
             lr=learning_rate,
@@ -137,12 +145,12 @@ def train(
 
     current_step = 0
     # if a checkpoint exists, restore the latest checkpoint.
-    if ckpt_manager.latest_checkpoint:
+    if ckpt_manager.latest_checkpoint and global_step_init <= 1:
         ckpt.restore(ckpt_manager.latest_checkpoint)
         current_step = optimizer.iterations.numpy()
         print("[INFO] Loaded latest checkpoint %s from step %d" % (ckpt_manager.latest_checkpoint, current_step))
         
-    global_step_init = current_step
+        global_step_init = current_step
 
     # checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
     # latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
