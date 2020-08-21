@@ -35,7 +35,7 @@ train:
     # batch_size: 168
     # max_seq_len: 128
 
-    batch_size: 84
+    batch_size: 64
     max_seq_len: 256
 
 
