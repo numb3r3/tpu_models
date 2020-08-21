@@ -128,6 +128,18 @@ def train(
                 warmup_steps=num_warmup_steps,
                 global_step_init=global_step_init,
             )
+    elif params.train.optimizer == "LAMB":
+        optimizer = tfa.optimizers.LAMB(
+            learning_rate=learning_rate, 
+            weight_decay=params.train.weight_decay_rate,
+            exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"]
+            )
+        lr_scheduer = WarmUpLinearDecayScheduler(
+                learning_rate_base=learning_rate,
+                total_steps=num_train_steps,
+                warmup_steps=num_warmup_steps,
+                global_step_init=global_step_init,
+            )
     elif params.train.optimizer == "RAdam":
         radam = tfa.optimizers.RectifiedAdam(
             lr=learning_rate,
@@ -136,6 +148,7 @@ def train(
             min_lr=params.train.min_lr,
         )
         optimizer = tfa.optimizers.Lookahead(radam, sync_period=6, slow_step_size=0.5)
+    
 
     ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
 

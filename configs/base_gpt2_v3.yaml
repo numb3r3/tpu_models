@@ -48,7 +48,7 @@ train:
     
     patience: 3
 
-    optimizer: Adafactor
+    optimizer: LAMB
 
     # checkpoint_intervals: 5000
 
