@@ -125,7 +125,7 @@ def train(
             lr=learning_rate,
             total_steps=num_train_steps,
             warmup_proportion=params.train.warmup_rate,
-            min_lr=1e-6,
+            min_lr=params.train.min_lr,
         )
         optimizer = tfa.optimizers.Lookahead(radam, sync_period=6, slow_step_size=0.5)
 

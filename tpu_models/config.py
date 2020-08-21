@@ -28,6 +28,7 @@ class ConfigTrain(BaseModel):
     max_seq_len: int
     steps_per_epoch: int
     learning_rate: float
+    min_lr: float
     max_grad_norm: float
     weight_decay_rate: float
     warmup_rate: float
