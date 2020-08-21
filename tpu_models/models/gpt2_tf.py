@@ -101,10 +101,12 @@ def train(
     #     weight_decay_rate=params.train.weight_decay_rate,
     # )
 
-    optimizer = AdafactorOptimizer(learning_rate=learning_rate)
-
-    # optimizer = AdafactorOptimizer(
-    #             beta1=.0, multiply_by_parameter_scale=True)
+    
+    if params.train.multiply_by_parameter_scale:
+        optimizer = AdafactorOptimizer(
+                    beta1=.0, multiply_by_parameter_scale=True)
+    else:
+        optimizer = AdafactorOptimizer(learning_rate=learning_rate)
 
     ckpt = tf.train.Checkpoint(model=model, optimizer=optimizer)
 

@@ -33,6 +33,8 @@ class ConfigTrain(BaseModel):
     warmup_rate: float
     patience: float
 
+    multiply_by_parameter_scale: bool
+
 
 class ConfigPred(BaseModel):
     do_sample: bool
