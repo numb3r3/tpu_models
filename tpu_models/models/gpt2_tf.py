@@ -119,6 +119,7 @@ def train(
         current_step = optimizer.iterations.numpy()
         print("[INFO] Loaded latest checkpoint %s from step %d" % (ckpt_manager.latest_checkpoint, current_step))
     
+    return
     
     global_step_init = current_step
 
