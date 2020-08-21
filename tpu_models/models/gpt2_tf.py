@@ -127,12 +127,14 @@ def train(
                 total_steps=num_train_steps,
                 warmup_steps=num_warmup_steps,
                 global_step_init=global_step_init,
+                clipnorm=1.0,
             )
     elif params.train.optimizer == "LAMB":
         optimizer = tfa.optimizers.LAMB(
             learning_rate=learning_rate, 
-            weight_decay=params.train.weight_decay_rate,
-            exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"]
+            weight_decay_rate=params.train.weight_decay_rate,
+            exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"],
+            clipnorm=1.0
             )
         lr_scheduer = WarmUpLinearDecayScheduler(
                 learning_rate_base=learning_rate,
@@ -146,6 +148,7 @@ def train(
             total_steps=num_train_steps,
             warmup_proportion=params.train.warmup_rate,
             min_lr=params.train.min_lr,
+            clipnorm=1.0,
         )
         optimizer = tfa.optimizers.Lookahead(radam, sync_period=6, slow_step_size=0.5)
     
