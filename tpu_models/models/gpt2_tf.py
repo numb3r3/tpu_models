@@ -117,21 +117,21 @@ def train(
     lr_scheduer = None
     if params.train.optimizer == "Adafactor":
         optimizer = AdafactorOptimizer(learning_rate=learning_rate)
-        lr_scheduer = WarmUpLinearDecayScheduler(
-                learning_rate_base=learning_rate,
-                total_steps=num_train_steps,
-                warmup_steps=num_warmup_steps,
-                global_step_init=global_step_init,
-            )
+        # lr_scheduer = WarmUpLinearDecayScheduler(
+        #         learning_rate_base=learning_rate,
+        #         total_steps=num_train_steps,
+        #         warmup_steps=num_warmup_steps,
+        #         global_step_init=global_step_init,
+        #     )
     elif params.train.optimizer == "AdamW":
         optimizer = tfa.optimizers.AdamW(learning_rate=learning_rate, weight_decay=params.train.weight_decay_rate)
-        lr_scheduer = WarmUpLinearDecayScheduler(
-                learning_rate_base=learning_rate,
-                total_steps=num_train_steps,
-                warmup_steps=num_warmup_steps,
-                global_step_init=global_step_init,
-                # clipnorm=1.0,
-            )
+        # lr_scheduer = WarmUpLinearDecayScheduler(
+        #         learning_rate_base=learning_rate,
+        #         total_steps=num_train_steps,
+        #         warmup_steps=num_warmup_steps,
+        #         global_step_init=global_step_init,
+        #         # clipnorm=1.0,
+        #     )
     elif params.train.optimizer == "LAMB":
         optimizer = tfa.optimizers.LAMB(
             learning_rate=learning_rate, 
@@ -139,12 +139,12 @@ def train(
             exclude_from_weight_decay=["LayerNorm", "layer_norm", "bias"],
             # clipnorm=1.0
             )
-        lr_scheduer = WarmUpLinearDecayScheduler(
-                learning_rate_base=learning_rate,
-                total_steps=num_train_steps,
-                warmup_steps=num_warmup_steps,
-                global_step_init=global_step_init,
-            )
+        # lr_scheduer = WarmUpLinearDecayScheduler(
+        #         learning_rate_base=learning_rate,
+        #         total_steps=num_train_steps,
+        #         warmup_steps=num_warmup_steps,
+        #         global_step_init=global_step_init,
+        #     )
     elif params.train.optimizer == "RAdam":
         radam = tfa.optimizers.RectifiedAdam(
             lr=learning_rate,
@@ -170,6 +170,13 @@ def train(
         print("[INFO] Loaded latest checkpoint %s from step %d" % (ckpt_manager.latest_checkpoint, current_step))
         
         global_step_init = current_step
+
+    lr_scheduer = WarmUpLinearDecayScheduler(
+        learning_rate_base=learning_rate,
+        total_steps=num_train_steps,
+        warmup_steps=num_warmup_steps,
+        global_step_init=global_step_init,
+    )
 
     # checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
     # latest_checkpoint = tf.train.latest_checkpoint(params.output.checkpoint_path)
