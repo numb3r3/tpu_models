@@ -73,6 +73,6 @@ class TransformersCheckpoint(keras.callbacks.Callback):
         self.global_steps += 1
 
     def on_epoch_end(self, epoch, logs=None):
-        save_dir = os.path.join(self.save_dir, f"checkpoint-epoch-{epoch}")
+        save_dir = os.path.join(self._save_dir, f"checkpoint-epoch-{epoch}")
         print(f"[DEBUG] save transformers model in {save_dir} at epoch {epoch}")
         self._model.save_pretrained(save_dir)

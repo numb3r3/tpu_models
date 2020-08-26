@@ -1,6 +1,6 @@
 
 
-ctpu up --machine-type=n1-highmem-8 --tpu-size=v3-8 --zone=europe-west4-a --tf-version=2.3 --name=tpu-quickstart
+ctpu up --machine-type=n1-highmem-8 --tpu-size=v3-8 --zone=europe-west4-a --tf-version=2.3 --name=tpu-gpt2 --tpu-only
 
 wandb login c4d6ec10582d5cefd22900005907b50132b626fe
 
